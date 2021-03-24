@@ -12,6 +12,10 @@
 - Email：tomcath@foxmail.com
 
 ---
+
+## [EvaBBS 项目记录](https://github.com/Catname/EvaBBS/blob/master/README.md)
+
+---
 ## 技能清单
 
 - Web 前端相关：`HTML` `CSS` `JavaScript` `JQuery` `AJAX` `JSON`
