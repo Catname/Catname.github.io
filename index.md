@@ -4,7 +4,7 @@
 
 特别熟悉在 `LNMP` 环境下，使用 Laravel 框架进行应用开发。
 
-有在 Homestead 环境下用 Laravel 框架开发中型论坛的经验和 C/S 架构下预约系统 API 服务器开发经验。代码遵循 PSR 规范。API 遵循 RESTful 设计。代码通过 GitHub 进行版本管理。
+有在 Homestead 环境下用 Laravel 框架开发中型论坛的经验和 C/S 架构下预约系统 API 服务器开发经验。代码遵循 PSR 规范。API 遵循 RESTful 设计。使用 GitHub 进行版本管理。
 
 ---
 ## 联系方式
