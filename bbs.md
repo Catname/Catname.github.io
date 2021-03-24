@@ -1,0 +1,617 @@
+# EvaBBS
+***
+## Git 工作流
+### 初始化
+
+```bash
+git init
+git add -A
+git commit -m 'reason'
+git remote add origin git@github.com:<username>/项目名.git
+git push -u origin 默认分支名
+```
+
+### 日常
+
+```bash
+git checkout . （放弃操作）
+git checkout -b 分支名
+git add -A 或 git add filename
+git commit -m 'reason'
+git push
+```
+
+***
+## 前端工作流
+### 集成 Bootstrap
++ Composer 安装相应的文件
+
+```bash
+composer require laravel/ui:^2.0 --dev
+
+php artisan ui bootstrap
+
+yarn install
+
+npm run watch-poll （监听文件变化并编译） 或 npm run dev （编译一次）
+```
+
+### 修改样式
+修改 `resources/sass/app.scss` 后，运行：
+
+```bash
+npm run watch-poll （监听文件变化并编译） 或 npm run dev （编译一次）
+```
+
+### 防止浏览器缓存问题
+修改 `webpack.mix.js` 
+
+```javascript
+const mix = require('laravel-mix');
+ mix.js('resources/js/app.js','public/js')
+    .sass('resources/sass/app.scss','public/css').version();
+```
+
+修改 `resources/views/layouts/app.blade.php`
+
+```html
+<!-- Styles -->
+<link href="{{ mix('css/app.css'}}" rel="stylesheet">
+```
+
+### 字体图标
+
+```bash
+yarn add @fortawesome/fontawesome-free
+```
+
+在样式中载入 `resources/sass/app.scss` 
+
+```scss
+// Fontawesome
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+@import '~@fortawesome/fontawesome-free/scss/brands';
+```
+
+然后编译
+
+```bash
+npm run watch-poll （监听文件变化并编译） 或 npm run dev （编译一次）
+```
+
+***
+## 用户认证
+### Laravel 自带的用户认证脚手架
+执行认证脚手架命令，生成代码：
+
+```bash
+php artisan ui:auth
+```
+
+它会自动生成用户认证路由：
+
+```php
+Auth::routes();
+```
+
+同时 `ui:auth` 命令生成了 `resources/views/auth` 下几个文件：
+
+| 视图名称 | 说明 |
+|--------|----|
+| register.blade.php | 注册页面视图|
+| login.blade.php | 登录页面视图 |
+| verify.blade.php | 邮箱认证视图 |
+| passwords/email.blade.php | 提交邮箱发送邮件的视图 |
+| passwords/reset.blade.php | 重置密码的页面视图 |
+### 本地化
+安装语言包 Laravel Lang，此项目支持了52个国家的语言
+
+```bash
+composer require "overtrue/laravel-lang:~3.0"
+```
+
+将 `config/app.php` 中的下一行
+
+```php
+Illuminate\Translation\TranslationServiceProvider::class,
+```
+
+替换为：
+
+```php
+Overtrue\LaravelLang\TranslationServiceProvider::class,
+```
+
+### Blade 模版中判断登录状态
+
+```html
+@guest
+    <li class="nav-item">
+        <a href="{{ route('login') }}">登录</a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ route('register') }}">注册</a>
+    </li>
+@else
+    ...
+@endguest
+```
+
+### 验证码
+#### 安装第三方扩展包 mews/captcha 作为基础来实现验证码功能。
+
+```bash
+composer require "mews/captcha:~3.0"
+
+php artisan vendor:publish --provider='Mews\Captcha\CaptchaServiceProvider' 
+```
+
+#### 页面嵌入
+##### 前端展示
+
+```html
+<img class="thumbnail captcha mt-3 mb-2" 
+     src="{{ captcha_src('flat') }}" 
+     onclick="this.src='/captcha/flat?'+Math.random()" 
+     title="点击图片重新获取验证码">
+```
+
+##### 后端验证
+实现原理：利用了Laravel 表单验证器提供的 [自定义表单验证规则](https://learnku.com/docs/laravel/7.x/validation/7467#custom-validation-rules) 功能  
+
+在注册控制器中添加上表单验证规则
+`app/Http/Controllers/Auth/RegisterController.php`
+
+```php
+protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            ...
+            'captcha' => ['required', 'captcha'],
+        ], [
+            'captcha.required' => '验证码不能为空',
+            'captcha.captcha' => '请输入正确的验证码',
+        ]);
+    }
+```
+
+### 邮箱认证
+#### 『邮箱认证』工作机制一般分两步
+1. 发送认证邮件 —— 将附带认证信息的『认证链接』发送到用户邮箱里；
+2. 检测认证链接 —— 用户打开邮件，点击认证链接进入网站，程序检测 URL 中认证参数的合法性，并渲染对应的页面。
+#### 认证过程思路
+1. 用户注册成功后，给用户发送一个认证邮件；
+2. 用户登录状态下，如邮箱未认证，重定向到提醒验证邮箱的页面中。
+#### 实现原理
+* 使用 Laravel 默认自带**邮箱认证**功能  
+* 用户在提交注册表单后，Laravel 会通过事件系统触发 Registered 事件，通过监听此事件，在触发时发送用户认证邮件。
+* 使用自定义中间件过滤用户所有请求，将未认证用户强制跳转到认证提示页面。
+
+***
+## 用户授权
+### 限制游客访问
+#### Auth 中间件
+除了 show ，其他都需要登录后才能访问  
+
+`UsersController.php`
+
+```php
+public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['show']]);
+    }
+```
+
+### 只能编辑自己的资料
+#### Policy 授权策略类
+
+```bash
+php artisan make:policy UserPolicy
+```
+
+`app/Policies/UserPolicy.php`
+
+```php
+public function update(User $currentUser, User $user)
+    {
+        return $currentUser->id === $user->id;
+    }
+```
+
+在需要授权的地方使用
+
+```php
+$this->authorize('update', $user);
+```
+
+### Blade 模版根据权限显示内容
+
+```html
+@can('update', $topic)
+    <div class="operate">
+       ...
+    </div>
+@endcan
+```
+
+***
+## 表单验证
+### [表单请求验证](https://learnku.com/docs/laravel/7.x/validation/7467) （FormRequest）
+用来验证用户提交的数据是否合规
+
+```bash
+php artisan make:request UserRequest
+```
+
+常用验证规则  
+[alpha_dash](https://learnku.com/docs/laravel/7.x/validation/7467#rule-alpha-dash) :验证字段可能包含字母、数字，以及破折号 (-) 和下划线 ( _ )。  
+[between:min,max](https://learnku.com/docs/laravel/7.x/validation/7467#rule-between) :验证字段的大小必须在给定的 `min` 和 `max` 之间。字符串、数字、数组和文件的计算方式都使用 `size` 方法。  
+[confirmed](https://learnku.com/docs/laravel/7.x/validation/7467#rule-confirmed) :验证字段必须具有匹配字段 `foo_confirmation` 。例如，验证字段为 `password` ，输入中必须存在与之匹配的 `password_confirmation` 字段。  
+[email](https://learnku.com/docs/laravel/7.x/validation/7467#rule-email) :验证的字段必须符合 `e-mail` 地址格式。  
+[nullable](https://learnku.com/docs/laravel/7.x/validation/7467#rule-nullable) :验证字段可以为 `null`。这在验证基本数据类型时特别有用，例如可以包含空值的字符串和整数。  
+[required](https://learnku.com/docs/laravel/7.x/validation/7467#rule-required) :验证的字段必须存在于输入数据中，而不是空。  
+[unique:table,column,except,idColumn](https://learnku.com/docs/laravel/7.x/validation/7467#rule-unique) :验证字段在给定的数据库表中必须是唯一的。  
+
+***
+## 图片上传
+### 通过 [请求对象](https://learnku.com/docs/laravel/7.x/requests#retrieving-uploaded-files) （Request）来获取
+
+```php
+$file = $request->avatar;
+```
+
+### 通过 [表单请求验证](https://learnku.com/docs/laravel/7.x/validation/7467) （FormRequest）限制图片大小
+
+```php
+return [
+           'avatar' => 'mimes:jpeg,bmp,png,gif|dimensions:min_width=208,min_height=208',
+       ];
+```
+
+### 裁剪图像
+图片太大会拖慢页面的加载速度。  
+通过 Intervention/image 扩展包来处理图片裁切的逻辑  
+```bash
+composer require intervention/image
+
+php artisan vendor:publish --provider="Intervention\Image\ImageServiceProviderLaravelRecent"
+```
+
+***
+## 调试用的假数据填充
+### 以用户数据为例，涉及以下几个文件：
+1. 数据模型 User.php
+2. 用户的数据工厂 database/factories/UserFactory.php
+3. 用户的数据填充 database/seeds/UsersTableSeeder.php
+4. 注册数据填充 database/seeds/DatabaseSeeder.php
+
+### 步骤
+1. 定制用户数据工厂（单个用户的信息）
+   
+   ```php
+   $factory->define(User::class, function (Faker $faker) {
+        return [
+            'name' => $faker->name,
+            'email' => $faker->unique()->safeEmail,
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];
+    });
+   ```
+   
+2. 完成数据填充文件（需要填充多少）
+   
+    ```bash
+    php artisan make:seed UsersTableSeeder
+    ```
+   
+   修改 `database/seeds/UsersTableSeeder.php`
+
+    ```php
+    public function run()
+    {
+        // 生成数据集合
+        $users = factory(User::class)->times(10)->create();
+
+        // 单独处理第一个用户的数据
+        $user = User::find(1);
+        $user->name = 'tomcat';
+        $user->email = 'tomcath@foxmail.com';
+        $user->save();
+    }
+    ```
+
+3. 注册数据填充 `database/seeds/DatabaseSeeder.php`
+
+    ```php
+    public function run()
+    {
+        $this->call(UsersTableSeeder::class);
+    }
+    ```
+   
+4. 重置数据库并填充数据
+
+    ```bash
+    php artisan migrate:refresh --seed
+    ```
+
+***
+## 模型关联
+### 一对一 hasOne
+### 一对一（反向关联） belongsTo
+* 一个 Topic 属于一个分类。
+* 一个 Topic 属于一个作者。
+
+### 一对多 hasMany
+* 一个用户拥有多个 Topic。
+* 一个用户拥有多条 评论。
+
+### 多对多 belongsToMany
+
+***
+## 性能优化
+### 安装 Laravel 开发者工具类 - laravel-debugbar
+
+```bash
+composer require "barryvdh/laravel-debugbar:~3.2" --dev
+
+php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
+```
+
+打开 `config/debugbar.php`，将 `enabled` 的值设为：
+
+```php
+'enabled' => env('APP_DEBUG', false),
+```
+
+
+### N+1 问题
+#### 产生原因：遍历 ORM 关联数据时，每次循环都要向数据库查询关联数据，读 30 条就要执行 30 * 2 + 1 = 61 条语句，所以称为 N+1 问题。
+#### 解决方案：通过 Eloquent 提供的 [预加载功能](https://learnku.com/docs/laravel/7.x/eloquent-relationships/7500#eager-loading) 来解决此问题：
+
+```php
+$topics = Topic::with('user', 'category')->paginate(30);
+```
+
+* with() 方法提前加载了我们后面需要用到的关联属性 user 和 category，并做了缓存。
+* 后面即使是在遍历数据时使用到这两个关联属性，数据已经被预加载并缓存，因此不会再产生多余的 SQL 查询。
+
+***
+## 安全漏洞
+安全原则 `永远不要信任用户提交的数据。`
+### XSS ( Cross Site Scripting ) 跨站脚本攻击
+#### 攻击者在 Web 页面插入 JavaScript 代码，当用户浏览该页时，代码便会执行，常见操作是盗取用户 Cookie。
+#### 避免 XSS 攻击的方法
+* 对用户提交的数据进行过滤
+* Web 网页显示时对数据进行特殊处理，一般使用 htmlspecialchars() 输出。
+
+Laravel 的 Blade 语法 {{  }} 会自动调用 PHP htmlspecialchars 函数来避免 XSS 攻击。但有些时候我们不得不使用 {!! !!}来原样输出数据，比如使用 WYSIWYG 编辑器时。  
+
+解决办法： 使用 HTMLPurifier for Laravel 对用户内容进行过滤。
+
+**用监听器在用户数据入库前进行过滤操作**：  
+`app/Observers/TopicObserver.php`
+
+```php
+class TopicObserver
+{
+    public function saving(Topic $topic)
+    {
+        $topic->body = clean($topic->body, 'user_topic_body');
+
+        $topic->excerpt = make_excerpt($topic->body);
+    }
+}
+```
+
+### CSRF 跨站请求伪造
+#### 这种攻击凭借已通过身份验证的用户身份来运行未经过授权的命令。
+#### 避免 CSRF 攻击的方法
+* Laravel 会自动为每个活跃的用户的会话生成一个 CSRF「令牌」。该令牌用于验证经过身份验证的用户是否是向应用程序发出请求的用户。
+* 在定义 HTMl 表单时，包含一个隐藏的 CSRF 标记字段。
+    ```html
+    <form method="POST" action="/profile">
+    @csrf
+    ...
+    </form>
+    ```
+* X-CSRF-TOKEN （通过验证的同时，还能方便Jquery AJAX 使用）
+    ```html
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    ```
+
+***
+## SEO 友好的 URL
+### 第三方 API 调用
+#### 使用 Guzzle 的 HTTP 客户端来请求 [百度翻译](http://api.fanyi.baidu.com/api/trans/product/apidoc) 接口。
+
+### 队列任务
+#### Redis
+* 生成队列任务  
+  
+  ```bash
+  php artisan make:job TranslateSlug
+  ```
+  
+* 监听 Topic 的 saved 事件，触发后将任务推送到队列
+  
+  ```php
+   public function saved(Topic $topic)
+    {
+        // 如 slug 字段无内容，即使用翻译器对 title 进行翻译
+        if ( ! $topic->slug) {
+
+            // 推送任务到队列
+            dispatch(new TranslateSlug($topic));
+        }
+    }
+  ```
+  
+#### 队列监控 Horizon
+Horizon 是 Laravel 生态圈里的一员，为 Laravel Redis 队列提供了一个漂亮的仪表板，允许我们很方便地查看和管理 Redis 队列任务执行的情况。
+
+***
+## 模型监听
+### 模型观察器监控 Eloquent 模型事件
+
+***
+## 多角色权限管理
+### 角色是用户在站点中的身份，很多时候与站点权限相关联
+在本项目中，有以下几个角色，权限由低到高：  
+* 游客 —— 没有登录的用户
+* 用户 —— 登录用户
+* 管理员 —— 社区内容管理
+* 站长 —— 权限最高的用户角色
+
+### 权限管理扩展包 Laravel-permission
+数据表结构：  
+* roles —— 角色的模型表；
+* permissions —— 权限的模型表；
+* model_has_roles —— 模型与角色的关联表，用户拥有什么角色在此表中定义，一个用户能拥有多个角色；
+* role_has_permissions —— 角色拥有的权限关联表，如管理员拥有查看后台的权限都是在此表定义，一个角色能拥有多个权限；
+* model_has_permissions —— 模型与权限关联表，一个模型能拥有多个权限。
+
+### 管理后台扩展包 Laravel Administrator
+这是一个使用「配置信息」来快速生成管理员后台的开发理念，几分钟内就能拥有一个可用的后台。
+
+***
+## 计划任务
+通过 Laravel 命令调度器在 Laravel 中对命令调度进行清晰流畅的定义，这样只需要在服务器上增加一条 Cron 项目即可。调度在 app/Console/Kernel.php 文件的 schedule 方法中定义，还能受到版本控制。
+### 修改系统的 Cron 计划任务配置信息
+
+```bash
+export EDITOR=vim && crontab -e
+```
+
+增加下面这行：
+
+```
+* * * * * php /home/vagrant/Code/larabbs/artisan schedule:run >> /dev/null 2>&1
+```
+
+系统的 Cron 已经设定好了，现在 Cron 软件将会每分钟调用一次 Laravel 命令调度器，当 `schedule:run` 命令执行时， Laravel 会评估你的计划任务并运行预定任务。  
+
+注册调度任务  
+`app/Console/Kernel.php`
+
+```php
+protected function schedule(Schedule $schedule)
+    {
+        // 一小时执行一次『活跃用户』数据生成的命令
+        $schedule->command('larabbs:calculate-active-user')->hourly();
+    }
+```
+
+***
+## 用户最后登录时间
+### 基本思路：
+1. 记录 - 通过中间件过滤用户所有请求，记录用户访问时间到 Redis 按日期区分的哈希表；
+2. 同步 - 新建命令，计划任务每天运行一次此命令，将昨日哈希表里的数据同步到数据库中，并删除；
+3. 读取 - 优先读取当日哈希表里 Redis 里的数据，无数据则使用数据库中的值。
+
+### 自定义 Middleware 中间件
+#### 利用 [Laravel 中间件](https://learnku.com/docs/laravel/7.x/middleware) 功能来实现用户访问时间的记录。
+创建中间件
+
+```bash
+php artisan make:middleware RecordLastActivedTime
+```
+
+`app/Http/Middleware/RecordLastActivedTime.php`
+
+```php
+public function handle($request, Closure $next)
+    {
+        // 如果是登录用户的话
+        if (Auth::check()) {
+            // 记录最后登录时间
+            Auth::user()->recordLastActivedAt();
+        }
+        return $next($request);
+    }
+```
+
+注册中间件 `app/Http/Kernel.php`
+
+```php
+protected $middlewareGroups = [
+
+        // Web 中间件组，应用于 routes/web.php 路由文件，
+        // 在 RouteServiceProvider 中设定
+        'web' => [
+            ...
+            // 记录用户最后活跃时间
+            \App\Http\Middleware\RecordLastActivedTime::class,
+        ],
+        ...
+    ];
+```
+
+### 自定义 Artisan 命令
+#### 新建命令
+
+```bash
+php artisan make:command SyncUserActivedAt --command=larabbs:sync-user-actived-at
+```
+
+`app/Console/Commands/SyncUserActivedAt.php`
+
+```php
+protected $signature = 'larabbs:sync-user-actived-at';
+protected $description = '将用户最后登录时间从 Redis 同步到数据库中';
+
+public function handle(User $user)
+{
+    $user->syncUserActivedAt();
+    $this->info("同步成功！");
+}
+```
+
+#### 执行命令
+
+```bash
+php artisan larabbs:sync-user-actived-at
+```
+
+#### 每天零时 00:00 自动对数据进行同步。通过 Laravel 任务调度实现此功能。
+`app/Console/Kernel.php`
+
+```php
+protected function schedule(Schedule $schedule)
+    {
+        // 每日零时执行一次
+        $schedule->command('larabbs:sync-user-actived-at')->dailyAt('00:00');
+    }
+```
+
+***
+## 消息通知
+### Laravel 的消息通知系统
+#### 通知频道有数据库、邮件、短信（通过 Nexmo）以及 Slack。
+#### 当 Topic 有新 reply 时，通知作者
+1. 准备数据库
+
+```bash
+php artisan notifications:table
+
+php artisan migrate
+```
+
+并在用户表加入消息计数字段。
+
+2. 生成通知类
+
+```bash
+php artisan make:notification TopicReplied
+```
+
+3. 在模型监听器中监听 reply 的 created 事件，触发后使用 notify() 发送通知
+
+```php
+// 通知话题作者有新的评论
+$reply->topic->user->notify(new TopicReplied($reply));
+```
