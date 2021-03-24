@@ -13,7 +13,7 @@
 
 ---
 
-## [EvaBBS 项目记录](https://github.com/Catname/EvaBBS/blob/master/README.md)
+## [EvaBBS 项目记录](https://github.com/Catname/Catname.github.io/blob/main/bbs.md)
 
 ---
 ## 技能清单
