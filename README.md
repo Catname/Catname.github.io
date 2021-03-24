@@ -1,37 +1,38 @@
-## Welcome to GitHub Pages
+## 欢迎来到这里~
 
-You can use the [editor on GitHub](https://github.com/Catname/Catname.github.io/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+本人目前主要做 PHP 后端开发。
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+特别熟悉在 `LNMP` 环境下，使用 Laravel 框架进行应用开发。
 
-### Markdown
+有在 Homestead 环境下用 Laravel 框架开发中型论坛的经验和 C/S 架构下预约系统 API 服务器开发经验。代码遵循 PSR 规范。API 遵循 RESTful 设计。使用 GitHub 进行版本管理。
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+---
+## 联系方式
 
-```markdown
-Syntax highlighted code block
+- Email：tomcath@foxmail.com
 
-# Header 1
-## Header 2
-### Header 3
+---
 
-- Bulleted
-- List
+## [EvaBBS 项目记录](https://github.com/Catname/Catname.github.io/blob/main/bbs.md)
 
-1. Numbered
-2. List
+---
+## 技能清单
 
-**Bold** and _Italic_ and `Code` text
+- Web 前端相关：`HTML` `CSS` `JavaScript` `JQuery` `AJAX` `JSON`
 
-[Link](url) and ![Image](src)
-```
+- Web 后端相关：`PHP` `Laravel` `ThinkPHP`
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+- 数据库相关：`MySQL` `Redis` `Memcached` `PDO`
 
-### Jekyll Themes
+- 版本管理、文档和自动化部署工具：`Svn` `Git` `PHPDoc` `Composer`
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Catname/Catname.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+- 单元测试：`PHPUnit`
 
-### Support or Contact
+- 操作系统：`Linux`(`centOS` & `Ubuntu`) `macOS` `Windows`
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+- 其他： `Vim` `Postman`
+
+---
+
+## 致谢
+感谢您花时间阅读我的简历，期待能有机会和您共事。
