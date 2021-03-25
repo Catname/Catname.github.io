@@ -1,57 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>BBS 开发记录 | 雄猫的自由空间</title>
-  <meta name="renderer" content="webkit">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="/css/font-awesome/css/font-awesome.min.css" type="text/css" />
-  <link rel="stylesheet" href="/css/default.css" type="text/css" />
-  <link rel="stylesheet" href="/css/desktop.css" type="text/css" />
-  <link rel="stylesheet" href="/css/mobile.css" type="text/css" />
-  <link rel="shortcut icon" href="/css/favicon.ico" type="image/x-icon" />
-  <link rel="icon" href="/css/favicon.ico" mce_href="/favicon.ico" type="image/x-icon">
-  <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="/atom.xml" />
-  <script src="/js/jquery-1.11.0.min.js" type="text/javascript"></script>
-  <script src="/js/jquery-migrate-1.2.1.js" type="text/javascript"></script>
-  <script src="/js/jquery.transit.min.js" type="text/javascript"></script>
-  <script src="/js/common.js" type="text/javascript"></script>
-
-<body>
-  <link rel="stylesheet" href="/js/prettify/prettify.css" />
-<style type="text/css">
-  html {
-    background: #333333;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-  }
-  @media screen and (max-width: 750px){
-    body { background: rgba(255, 255, 255, 0.9); }
-  }
-</style>
-
-<div id="content" class="post" style="margin-top: 20px;">
-  <div id="avatar" class="avatar circle" data-in-right="false" style="width: 150px; height: 150px; position: fixed; top: 40px; z-index: 99; opacity: 0;">
-    <div class="center" style="margin-top: 4px; height: 142px; width: 142px; border-radius: 71px; background-image: url('../images/2.jpg');"></div>
-  </div>
-
-  <div class="entry" style="position: relative;">
-    <h1 class="entry-title"><a href="/BBS-note-2020" title="BBS 开发记录">BBS 开发记录</a></h1>
-
-    <p class="entry-date">2020-09-25 
-        <span class="lastModified" style="display: none;" data-source="_posts/note/2020-09-25-BBS-note-2020.md">最后更新时间: 
-        </span>
-    </p>
-
-
-    <h1 id="evabbs">EvaBBS</h1>
-
+I"h�<h1 id="evabbs">EvaBBS</h1>
 <hr />
-
 <h2 id="git-工作流">Git 工作流</h2>
 <h3 id="初始化">初始化</h3>
 
@@ -192,7 +140,8 @@ yarn <span class="nb">install
 
 <h3 id="blade-模版中判断登录状态">Blade 模版中判断登录状态</h3>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@guest
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+@guest
     <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"nav-item"</span><span class="nt">&gt;</span>
         <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ route('login') }}"</span><span class="nt">&gt;</span>登录<span class="nt">&lt;/a&gt;</span>
     <span class="nt">&lt;/li&gt;</span>
@@ -202,6 +151,7 @@ yarn <span class="nb">install
 @else
     ...
 @endguest
+
 </code></pre></div></div>
 
 <h3 id="验证码">验证码</h3>
@@ -218,7 +168,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 <p>终端中执行：</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"thumbnail captcha mt-3 mb-2"</span> 
-     <span class="na">src=</span><span class="s">"{{ captcha_src('flat') }}"</span> 
+     <span class="na">src=</span><span class="s">""</span> 
      <span class="na">onclick=</span><span class="s">"this.src='/captcha/flat?'+Math.random()"</span> 
      <span class="na">title=</span><span class="s">"点击图片重新获取验证码"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
@@ -461,7 +411,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
   <li>Web 网页显示时对数据进行特殊处理，一般使用 htmlspecialchars() 输出。</li>
 </ul>
 
-<p>Laravel 的 Blade 语法 {{  }} 会自动调用 PHP htmlspecialchars 函数来避免 XSS 攻击。但有些时候我们不得不使用 {!! !!}来原样输出数据，比如使用 WYSIWYG 编辑器时。</p>
+<p>Laravel 的 Blade 语法  会自动调用 PHP htmlspecialchars 函数来避免 XSS 攻击。但有些时候我们不得不使用 {!! !!}来原样输出数据，比如使用 WYSIWYG 编辑器时。</p>
 
 <p>解决办法： 使用 HTMLPurifier for Laravel 对用户内容进行过滤。</p>
 
@@ -496,7 +446,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
   <li>
     <p>X-CSRF-TOKEN （通过验证的同时，还能方便Jquery AJAX 使用）</p>
 
-    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"csrf-token"</span> <span class="na">content=</span><span class="s">"{{ csrf_token() }}"</span><span class="nt">&gt;</span>
+    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"csrf-token"</span> <span class="na">content=</span><span class="s">""</span><span class="nt">&gt;</span>
 </code></pre></div>    </div>
   </li>
 </ul>
@@ -696,25 +646,4 @@ php artisan migrate
 <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 通知话题作者有新的评论</span>
 <span class="nv">$reply</span><span class="o">-&gt;</span><span class="n">topic</span><span class="o">-&gt;</span><span class="n">user</span><span class="o">-&gt;</span><span class="nf">notify</span><span class="p">(</span><span class="k">new</span> <span class="nc">TopicReplied</span><span class="p">(</span><span class="nv">$reply</span><span class="p">));</span>
 </code></pre></div></div>
-
-
-
-  </div>
-
-
-  <div id="menuIndex" class="sidenav">
-    <div class="myinfo"><center>
-      <div id="avatarHolder" class="avatar circle" style="width: 0px; height: 0px; box-shadow: none; margin-bottom: 20px;"></div>
-      <a href="/index.html" title="Homepage"><i class="icon-home icon-large"></i> Home</a>
-      <a href=""><i class="icon-linkedin-sign icon-large"></i> Profile</a>
-      <a href="https://github.com/Catname"><i class="icon-github icon-large"></i> Code</a>
-      <a href="mailto:tomcath@foxmail.com"><i class="icon-envelope icon-large"></i> Mail</a>
-    </center></div>
-    <div id="menu"></div>
-  </div>
-</div>
-
-<script src="/js/post.js" type="text/javascript"></script>
-
-</body>
-</html>
+:ET

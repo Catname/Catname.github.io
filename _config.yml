@@ -5,7 +5,7 @@ highlighter: rouge
 paginate: 8
 permalink: /:title
 encoding: UTF-8
-gems: [jekyll-paginate]
+plugins: [jekyll-paginate]
 
 title: 雄猫的自由空间
 url: http://catname.github.io

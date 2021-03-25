@@ -26,7 +26,7 @@
    <title>雄猫的自由空间</title>
    <link href="http://catname.github.io/atom.xml" rel="self" type="application/atom+xml"/>
    <link href="http://catname.github.io" rel="alternate" type="text/html" />
-   <updated>2021-03-25T13:14:18+08:00</updated>
+   <updated>2021-03-25T15:40:32+08:00</updated>
    <id>http://catname.github.io</id>
    <author>
      <name></name>
@@ -49,7 +49,8 @@
 
 &lt;h2 id=&quot;项目记录&quot;&gt;项目记录&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://catname.github.io/BBS-note-2020&quot;&gt;BBS 项目记录&lt;/a&gt; 点这里查看&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://catname.github.io/BBS-note-2020&quot;&gt;BBS 项目记录&lt;/a&gt; 👈 点此查看&lt;br /&gt;
+&lt;a href=&quot;https://catname.github.io/BBS-api-note-2020&quot;&gt;BBS API 项目记录&lt;/a&gt; 👈 点此查看&lt;/p&gt;
 
 &lt;h2 id=&quot;联系方式&quot;&gt;联系方式&lt;/h2&gt;
 
@@ -64,12 +65,280 @@
    </entry>
    
    <entry>
+     <title>BBS API 开发记录</title>
+     <link href="/BBS-api-note-2020"/>
+     <updated>2020-12-30T00:00:00+08:00</updated>
+     <id>/BBS-api-note-2020</id>
+     <content type="html">&lt;h2 id=&quot;restful-api&quot;&gt;RESTful API&lt;/h2&gt;
+&lt;p&gt;用 URL 定位资源，用 HTTP 动词描述操作。&lt;/p&gt;
+&lt;h3 id=&quot;url-定位资源&quot;&gt;URL 定位资源&lt;/h3&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET /issues                                      列出所有的 issue
+GET /orgs/:org/issues                            列出某个项目的 issue
+GET /repos/:owner/:repo/issues/:number           获取某个项目的某个 issue
+POST /repos/:owner/:repo/issues                  为某个项目创建 issue
+PATCH /repos/:owner/:repo/issues/:number         修改某个 issue
+PUT /repos/:owner/:repo/issues/:number/lock      锁住某个 issue
+DELETE /repos/:owner/:repo/issues/:number/lock   解锁某个 issue
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;http-动词描述操作&quot;&gt;HTTP 动词描述操作&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;动词&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+      &lt;th&gt;是否幂等&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;GET&lt;/td&gt;
+      &lt;td&gt;获取资源，单个或多个&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;POST&lt;/td&gt;
+      &lt;td&gt;创建资源&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;PUT&lt;/td&gt;
+      &lt;td&gt;更新资源，客户端提供完整的资源数据&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;PATCH&lt;/td&gt;
+      &lt;td&gt;更新资源，客户端提供部分的资源数据&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;DELETE&lt;/td&gt;
+      &lt;td&gt;删除资源&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;状态码&quot;&gt;状态码&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;200 OK - 对成功的 GET、PUT、PATCH 或 DELETE 操作进行响应。也可以被用在不创建新资源的 POST 操作上。&lt;/li&gt;
+  &lt;li&gt;201 Created - 对创建新资源的 POST 操作进行响应。应该带着指向新资源地址的 Location 头。&lt;/li&gt;
+  &lt;li&gt;202 Accepted - 服务器接受了请求，但是还未处理，响应中应该包含相应的指示信息，告诉客户端该去哪里查询关于本次请求的信息。&lt;/li&gt;
+  &lt;li&gt;204 No Content - 对不会返回响应体的成功请求进行响应（比如 DELETE 请求）。&lt;/li&gt;
+  &lt;li&gt;304 Not Modified - HTTP 缓存 header 生效的时候用。&lt;/li&gt;
+  &lt;li&gt;400 Bad Request - 请求异常，比如请求中的 body 无法解析。&lt;/li&gt;
+  &lt;li&gt;401 Unauthorized - 没有进行认证或者认证非法。&lt;/li&gt;
+  &lt;li&gt;403 Forbidden - 服务器已经理解请求，但是拒绝执行它。&lt;/li&gt;
+  &lt;li&gt;404 Not Found - 请求一个不存在的资源。&lt;/li&gt;
+  &lt;li&gt;405 Method Not Allowed - 所请求的 HTTP 方法不允许当前认证用户访问。&lt;/li&gt;
+  &lt;li&gt;410 Gone - 表示当前请求的资源不再可用。当调用老版本 API 的时候很有用。&lt;/li&gt;
+  &lt;li&gt;415 Unsupported Media Type - 如果请求中的内容类型是错误的。&lt;/li&gt;
+  &lt;li&gt;422 Unprocessable Entity - 用来表示校验错误。&lt;/li&gt;
+  &lt;li&gt;429 Too Many Requests - 由于请求频次达到上限而被拒绝访问。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;数据响应格式默认-json&quot;&gt;数据响应格式，默认 JSON&lt;/h3&gt;
+&lt;p&gt;对于错误数据，默认使用如下结构：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;'message' =&amp;gt; ':message',          // 错误的具体描述
+'errors' =&amp;gt; ':errors',            // 参数的具体错误描述，422 等状态提供
+'code' =&amp;gt; ':code',                // 自定义的异常码
+'status_code' =&amp;gt; ':status_code',  // http状态码
+'debug' =&amp;gt; ':debug',              // debug 信息，非生产环境提供
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;手机注册&quot;&gt;手机注册&lt;/h2&gt;
+&lt;h3 id=&quot;流程详解&quot;&gt;流程详解&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;用户输入手机号；&lt;/li&gt;
+  &lt;li&gt;通过手机号请求图片验证码，显示给用户&lt;/li&gt;
+  &lt;li&gt;用户输入正确的图片验证码，服务器发送验证码至用户手机&lt;/li&gt;
+  &lt;li&gt;用户填写，姓名，密码，及正确的短信验证码，完成注册&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;手机注册验证码&quot;&gt;手机注册验证码&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;生成 4 位随机码；&lt;/li&gt;
+  &lt;li&gt;用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;easySms&lt;/code&gt; 发送短信到用户手机；&lt;/li&gt;
+  &lt;li&gt;发送成功后，生成一个 key，在缓存中存储这个 key 对应的手机以及验证码，5 分钟过期；&lt;/li&gt;
+  &lt;li&gt;将 key 以及 过期时间 返回给客户端。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;做接口的思路与做网页应用不同，接口是无状态，相互独立的，处理这种相互关联，有先后调用顺序的接口时，常常是第一个接口返回一个随机的 key，利用这个 key 去调用第二个接口。&lt;/p&gt;
+
+&lt;p&gt;关于发送成功后返回的随机 key 这里有几种思路：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;为了防止上面一种情况，可以使用 手机号 + 几位随机字符串，例如 4 位随机字符串，或者当前时间戳，冲突的概率很小；&lt;/li&gt;
+  &lt;li&gt;使用一个 x 位的随机字符串，一般短时间内的随机字符串，例如 15 位，冲突的概率也很小。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;使用-throttle-中间件进行接口调用频率限制&quot;&gt;使用 throttle 中间件进行接口调用频率限制&lt;/h3&gt;
+&lt;p&gt;验证码轰炸，是最常见的攻击方式，恶意调用 发送短信验证码 接口，给一个用户手机或多个手机号码频繁发送验证码短信，对其造成非常负面的影响。&lt;/p&gt;
+
+&lt;h2 id=&quot;第三方登录&quot;&gt;第三方登录&lt;/h2&gt;
+&lt;p&gt;socialiteproviders 为  Laravel Socialite 提供了很多的第三方登录方式&lt;/p&gt;
+
+&lt;h3 id=&quot;微信登录&quot;&gt;微信登录&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;用事先申请到的 APPID 和回调地址发起微信 OAuth 的跳转地址:&lt;/p&gt;
+
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  https://open.weixin.qq.com/connect/oauth2/authorize?
+  appid=APPID
+  &amp;amp;redirect_uri=REDIRECT_URI
+  &amp;amp;response_type=code
+  &amp;amp;scope=SCOPE
+  &amp;amp;state=STATE#wechat_redirect
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;访问后来到微信登录授权页面&lt;/li&gt;
+  &lt;li&gt;登录后会跳转到第一步设置的回调地址，并且附带参数 code&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;获取 access_token:&lt;/p&gt;
+
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  https://api.weixin.qq.com/sns/oauth2/access_token?
+  appid=APPID
+  &amp;amp;secret=SECRET
+  &amp;amp;code=CODE
+  &amp;amp;grant_type=authorization_code
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;通过 access_token 获取个人信息&lt;/p&gt;
+
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  https://api.weixin.qq.com/sns/userinfo?
+  access_token=ACCESS_TOKEN
+  &amp;amp;openid=OPENID
+  &amp;amp;lang=zh_CN
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;oauth-20&quot;&gt;OAuth 2.0&lt;/h3&gt;
+&lt;p&gt;授权码模式&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;客户端（app / 浏览器）将用户导向第三方认证服务器&lt;/li&gt;
+  &lt;li&gt;用户在第三方认证服务器，选择是否给予客户端授权&lt;/li&gt;
+  &lt;li&gt;用户同意授权后，认证服务器将用户导向客户端事先指定的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;重定向URI&lt;/code&gt;，同时附上一个授权码。&lt;/li&gt;
+  &lt;li&gt;客户端将授权码发送至服务器，服务器通过授权码以及 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;APP_SECRET&lt;/code&gt; 向第三方服务器申请 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;access_token&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;服务器通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;access_token&lt;/code&gt;，向第三方服务器申请用户数据，完成登录流程&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;jwt-json-web-token&quot;&gt;JWT (JSON Web Token)&lt;/h3&gt;
+&lt;h4 id=&quot;一个非常轻巧的规范这个规范允许我们使用-jwt-在用户和服务器之间传递安全可靠的信息&quot;&gt;一个非常轻巧的规范，这个规范允许我们使用 JWT 在用户和服务器之间传递安全可靠的信息。&lt;/h4&gt;
+&lt;p&gt;jwt-auth 是 Laravel 和 lumen 的 JWT 组件&lt;br /&gt;
+实现 JWT 授权：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;composer require tymon/jwt-auth
+
+php artisan jwt:secret
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;修改 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;config/auth.php&lt;/code&gt;,将 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;api guard&lt;/code&gt; 的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;driver&lt;/code&gt; 改为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jwt&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;User 模型继承 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tymon\JWTAuth\Contracts\JWTSubject&lt;/code&gt; 接口，并实现接口的两个方法 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getJWTIdentifier()&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getJWTCustomClaims()&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;app\Models\User.php&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getJWTIdentifier&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;getKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getJWTCustomClaims&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;JWT 的过期和刷新机制，过期很好理解，超过了这个时间，token 就无效了。刷新时间一般比过期时间长，只要在这个刷新时间内，即使 token 过期了， 依然可以换取一个新的 token，以达到应用长期可用，不需要重新登录的目的。
+***&lt;/p&gt;
+&lt;h2 id=&quot;api-resources&quot;&gt;API Resources&lt;/h2&gt;
+&lt;p&gt;Laravel 的资源类能够更直观简便的方式将模型和模型集合转化成 JSON&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;h2 id=&quot;api-集成测试phpunit&quot;&gt;API 集成测试（PHPUnit）&lt;/h2&gt;
+&lt;h3 id=&quot;phpunit-是一个轻量级的-php-测试框架laravel-默认就支持用-phpunit-来做测试&quot;&gt;PHPUnit 是一个轻量级的 PHP 测试框架，Laravel 默认就支持用 PHPUnit 来做测试。&lt;/h3&gt;
+&lt;h3 id=&quot;创建测试文件&quot;&gt;创建测试文件&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;php artisan make:test TopicApiTest
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;该命令会在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tests/Feature&lt;/code&gt; 目录中创建 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TopicApiTest.php&lt;/code&gt; 文件，tests 目录中有 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Feature&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unit&lt;/code&gt; 两个目录。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Unit —— 单元测试是从程序员的角度编写的。它们用于确保类的特定方法执行一组特定任务。&lt;/li&gt;
+  &lt;li&gt;Feature —— 功能测试是从用户的角度编写的。它们确保系统按照用户期望的那样运行，包括几个对象的相互作用，甚至是一个完整的 HTTP 请求。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;API 属于功能测试，应该创建在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Feature&lt;/code&gt; 目录中。&lt;/p&gt;
+
+&lt;h3 id=&quot;测试发布话题&quot;&gt;测试发布话题&lt;/h3&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tests/Feature/TopicApiTest.php&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Tests\Feature&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Tests\TestCase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;App\Models\User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;App\Models\Topic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Illuminate\Foundation\Testing\WithFaker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Illuminate\Foundation\Testing\RefreshDatabase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TopicApiTest&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TestCase&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RefreshDatabase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setUp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 在测试开始之前执行，我们先创建一个用户，测试会以该用户的身份进行测试。&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;parent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;setUp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+        &lt;span class=&quot;nv&quot;&gt;$this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;factory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;testStoreTopic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;$data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'category_id'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'body'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'test body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'title'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'test title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+        &lt;span class=&quot;nv&quot;&gt;$token&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'api'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;fromUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;$response&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;withHeaders&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Authorization'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Bearer '&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'POST'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'/api/v1/topics'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;nv&quot;&gt;$assertData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+            &lt;span class=&quot;s1&quot;&gt;'category_id'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;s1&quot;&gt;'user_id'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;s1&quot;&gt;'title'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'test title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;s1&quot;&gt;'body'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;clean&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'test body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'user_topic_body'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+        &lt;span class=&quot;nv&quot;&gt;$response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;assertStatus&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;201&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;assertJsonFragment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$assertData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;执行测试：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phpunit
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+   </entry>
+   
+   <entry>
      <title>BBS 开发记录</title>
      <link href="/BBS-note-2020"/>
      <updated>2020-09-25T00:00:00+08:00</updated>
      <id>/BBS-note-2020</id>
      <content type="html">&lt;h1 id=&quot;evabbs&quot;&gt;EvaBBS&lt;/h1&gt;
+
 &lt;hr /&gt;
+
 &lt;h2 id=&quot;git-工作流&quot;&gt;Git 工作流&lt;/h2&gt;
 &lt;h3 id=&quot;初始化&quot;&gt;初始化&lt;/h3&gt;
 
@@ -122,7 +391,9 @@ yarn &lt;span class=&quot;nb&quot;&gt;install
 &lt;p&gt;修改 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;resources/views/layouts/app.blade.php&lt;/code&gt;&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Styles --&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;stylesheet&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{{ mix('css/app.css'}}&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;stylesheet&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;字体图标&quot;&gt;字体图标&lt;/h3&gt;
@@ -210,10 +481,10 @@ yarn &lt;span class=&quot;nb&quot;&gt;install
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@guest
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;li&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;nav-item&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;登录&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{{ route('login') }}&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;登录&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;/li&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;li&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;nav-item&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;注册&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{{ route('register') }}&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;注册&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;/li&amp;gt;&lt;/span&gt;
 @else
     ...
@@ -234,7 +505,7 @@ php artisan vendor:publish &lt;span class=&quot;nt&quot;&gt;--provider&lt;/span&
 &lt;p&gt;终端中执行：&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;img&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;thumbnail captcha mt-3 mb-2&quot;&lt;/span&gt; 
-     &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; 
+     &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{{ captcha_src('flat') }}&quot;&lt;/span&gt; 
      &lt;span class=&quot;na&quot;&gt;onclick=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;this.src='/captcha/flat?'+Math.random()&quot;&lt;/span&gt; 
      &lt;span class=&quot;na&quot;&gt;title=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;点击图片重新获取验证码&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -477,7 +748,7 @@ php artisan vendor:publish &lt;span class=&quot;nt&quot;&gt;--provider&lt;/span&
   &lt;li&gt;Web 网页显示时对数据进行特殊处理，一般使用 htmlspecialchars() 输出。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Laravel 的 Blade 语法  会自动调用 PHP htmlspecialchars 函数来避免 XSS 攻击。但有些时候我们不得不使用 {!! !!}来原样输出数据，比如使用 WYSIWYG 编辑器时。&lt;/p&gt;
+&lt;p&gt;Laravel 的 Blade 语法 {{  }} 会自动调用 PHP htmlspecialchars 函数来避免 XSS 攻击。但有些时候我们不得不使用 {!! !!}来原样输出数据，比如使用 WYSIWYG 编辑器时。&lt;/p&gt;
 
 &lt;p&gt;解决办法： 使用 HTMLPurifier for Laravel 对用户内容进行过滤。&lt;/p&gt;
 
@@ -512,7 +783,7 @@ php artisan vendor:publish &lt;span class=&quot;nt&quot;&gt;--provider&lt;/span&
   &lt;li&gt;
     &lt;p&gt;X-CSRF-TOKEN （通过验证的同时，还能方便Jquery AJAX 使用）&lt;/p&gt;
 
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;csrf-token&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;csrf-token&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{{ csrf_token() }}&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
