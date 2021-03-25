@@ -26,7 +26,7 @@
    <title>雄猫的自由空间</title>
    <link href="http://catname.github.io/atom.xml" rel="self" type="application/atom+xml"/>
    <link href="http://catname.github.io" rel="alternate" type="text/html" />
-   <updated>2021-03-25T12:17:01+08:00</updated>
+   <updated>2021-03-25T13:14:18+08:00</updated>
    <id>http://catname.github.io</id>
    <author>
      <name></name>
@@ -35,7 +35,7 @@
 
    
    <entry>
-     <title>个人简历</title>
+     <title>更多信息</title>
      <link href="/resume-2021"/>
      <updated>2021-03-25T00:00:00+08:00</updated>
      <id>/resume-2021</id>
@@ -45,43 +45,20 @@
 
 &lt;p&gt;特别熟悉在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LNMP&lt;/code&gt; 环境下，使用 Laravel 框架进行应用开发。&lt;/p&gt;
 
-&lt;p&gt;有在 Homestead 环境下用 Laravel 框架开发中型论坛的经验和 C/S 架构下预约系统 API 服务器开发经验。代码遵循 PSR 规范。API 遵循 RESTful 设计。使用 GitHub 进行版本管理。&lt;/p&gt;
+&lt;p&gt;熟悉在 Homestead 环境下用 Laravel 框架开发，有开发中型论坛的经验和 C/S 架构下预约系统 API 服务器开发经验。代码遵循 PSR 规范。API 遵循 RESTful 设计。使用 GitHub 进行版本管理。&lt;/p&gt;
 
-&lt;hr /&gt;
+&lt;h2 id=&quot;项目记录&quot;&gt;项目记录&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://catname.github.io/BBS-note-2020&quot;&gt;BBS 项目记录&lt;/a&gt; 点这里查看&lt;/p&gt;
+
 &lt;h2 id=&quot;联系方式&quot;&gt;联系方式&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Email：tomcath@foxmail.com&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;hr /&gt;
-
-&lt;h2 id=&quot;bbs-项目记录&quot;&gt;&lt;a href=&quot;https://github.com/Catname/Catname.github.io/BBS-note-2020&quot;&gt;BBS 项目记录&lt;/a&gt;&lt;/h2&gt;
-
-&lt;hr /&gt;
-&lt;h2 id=&quot;技能清单&quot;&gt;技能清单&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;Web 前端相关：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HTML&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CSS&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JavaScript&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JQuery&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AJAX&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JSON&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Web 后端相关：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PHP&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Laravel&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ThinkPHP&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JWT&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;OAuth2&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Postman&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Homestead&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;数据库相关：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MySQL&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Redis&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Memcached&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PDO&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;版本管理、测试、文档和自动化部署工具：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Svn&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Git&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PHPUnit&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MarkDown&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PHPDoc&lt;/code&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Composer&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;服务器：熟悉 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Liunx&lt;/code&gt; （ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;centOS&lt;/code&gt; &amp;amp; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Ubuntu&lt;/code&gt; ）基本操作，能进行常用环境配置，熟悉 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Vim&lt;/code&gt;，了解 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Shell&lt;/code&gt; 编程。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
 &lt;h2 id=&quot;致谢&quot;&gt;致谢&lt;/h2&gt;
+
 &lt;p&gt;感谢您花时间阅读我的简历，期待能有机会和您共事。&lt;/p&gt;
 </content>
    </entry>
@@ -182,13 +159,37 @@ yarn &lt;span class=&quot;nb&quot;&gt;install
 
 &lt;p&gt;同时 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ui:auth&lt;/code&gt; 命令生成了 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;resources/views/auth&lt;/code&gt; 下几个文件：&lt;/p&gt;
 
-&lt;p&gt;| 视图名称 | 说明 |
-|——–|—-|
-| register.blade.php | 注册页面视图|
-| login.blade.php | 登录页面视图 |
-| verify.blade.php | 邮箱认证视图 |
-| passwords/email.blade.php | 提交邮箱发送邮件的视图 |
-| passwords/reset.blade.php | 重置密码的页面视图 |&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;视图名称&lt;/th&gt;
+      &lt;th&gt;说明&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;register.blade.php&lt;/td&gt;
+      &lt;td&gt;注册页面视图&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;login.blade.php&lt;/td&gt;
+      &lt;td&gt;登录页面视图&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;verify.blade.php&lt;/td&gt;
+      &lt;td&gt;邮箱认证视图&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;passwords/email.blade.php&lt;/td&gt;
+      &lt;td&gt;提交邮箱发送邮件的视图&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;passwords/reset.blade.php&lt;/td&gt;
+      &lt;td&gt;重置密码的页面视图&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
 &lt;h3 id=&quot;本地化&quot;&gt;本地化&lt;/h3&gt;
 &lt;p&gt;安装语言包 Laravel Lang，此项目支持了52个国家的语言&lt;/p&gt;
 

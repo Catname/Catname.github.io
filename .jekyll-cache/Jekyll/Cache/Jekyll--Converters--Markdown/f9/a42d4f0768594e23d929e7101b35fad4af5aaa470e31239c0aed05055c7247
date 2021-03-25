@@ -1,4 +1,4 @@
-I"M�<h1 id="evabbs">EvaBBS</h1>
+I"3�<h1 id="evabbs">EvaBBS</h1>
 <hr />
 <h2 id="git-工作流">Git 工作流</h2>
 <h3 id="初始化">初始化</h3>
@@ -89,13 +89,41 @@ yarn <span class="nb">install
 
 <p>同时 <code class="language-plaintext highlighter-rouge">ui:auth</code> 命令生成了 <code class="language-plaintext highlighter-rouge">resources/views/auth</code> 下几个文件：</p>
 
-<p>| 视图名称 | 说明 |
-|——–|—-|
-| register.blade.php | 注册页面视图|
-| login.blade.php | 登录页面视图 |
-| verify.blade.php | 邮箱认证视图 |
-| passwords/email.blade.php | 提交邮箱发送邮件的视图 |
-| passwords/reset.blade.php | 重置密码的页面视图 |</p>
+<hr />
+
+<table>
+  <thead>
+    <tr>
+      <th>视图名称</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>register.blade.php</td>
+      <td>注册页面视图</td>
+    </tr>
+    <tr>
+      <td>login.blade.php</td>
+      <td>登录页面视图</td>
+    </tr>
+    <tr>
+      <td>verify.blade.php</td>
+      <td>邮箱认证视图</td>
+    </tr>
+    <tr>
+      <td>passwords/email.blade.php</td>
+      <td>提交邮箱发送邮件的视图</td>
+    </tr>
+    <tr>
+      <td>passwords/reset.blade.php</td>
+      <td>重置密码的页面视图</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
 <h3 id="本地化">本地化</h3>
 <p>安装语言包 Laravel Lang，此项目支持了52个国家的语言</p>
 
@@ -359,7 +387,8 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 </code></pre></div></div>
 
 <h3 id="n1-问题">N+1 问题</h3>
-<h4 id="产生原因遍历-orm-关联数据时每次循环都要向数据库查询关联数据读-30-条就要执行-30--2--1--61-条语句所以称为-n1-问题">产生原因：遍历 ORM 关联数据时，每次循环都要向数据库查询关联数据，读 30 条就要执行 30 * 2 + 1 = 61 条语句，所以称为 N+1 问题。</h4>
+<h4 id="产生原因">产生原因：</h4>
+<p>遍历 ORM 关联数据时，每次循环都要向数据库查询关联数据，读 30 条就要执行 30 * 2 + 1 = 61 条语句，所以称为 N+1 问题。</p>
 <h4 id="解决方案">解决方案：</h4>
 <p>通过 Eloquent 提供的 <a href="https://learnku.com/docs/laravel/7.x/eloquent-relationships/7500#eager-loading">预加载功能</a> 来解决此问题：</p>
 
@@ -554,6 +583,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 
 <h3 id="自定义-artisan-命令">自定义 Artisan 命令</h3>
 <h4 id="新建命令">新建命令</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:command SyncUserActivedAt <span class="nt">--command</span><span class="o">=</span>larabbs:sync-user-actived-at
 </code></pre></div></div>
@@ -571,6 +601,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 </code></pre></div></div>
 
 <h4 id="执行命令">执行命令</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan larabbs:sync-user-actived-at
 </code></pre></div></div>

@@ -1,4 +1,4 @@
-I"�<h1 id="evabbs">EvaBBS</h1>
+I"#�<h1 id="evabbs">EvaBBS</h1>
 <hr />
 <h2 id="git-工作流">Git 工作流</h2>
 <h3 id="初始化">初始化</h3>
@@ -89,13 +89,37 @@ yarn <span class="nb">install
 
 <p>同时 <code class="language-plaintext highlighter-rouge">ui:auth</code> 命令生成了 <code class="language-plaintext highlighter-rouge">resources/views/auth</code> 下几个文件：</p>
 
-<p>| 视图名称 | 说明 |
-|——–|—-|
-| register.blade.php | 注册页面视图|
-| login.blade.php | 登录页面视图 |
-| verify.blade.php | 邮箱认证视图 |
-| passwords/email.blade.php | 提交邮箱发送邮件的视图 |
-| passwords/reset.blade.php | 重置密码的页面视图 |</p>
+<table>
+  <thead>
+    <tr>
+      <th>视图名称</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>register.blade.php</td>
+      <td>注册页面视图</td>
+    </tr>
+    <tr>
+      <td>login.blade.php</td>
+      <td>登录页面视图</td>
+    </tr>
+    <tr>
+      <td>verify.blade.php</td>
+      <td>邮箱认证视图</td>
+    </tr>
+    <tr>
+      <td>passwords/email.blade.php</td>
+      <td>提交邮箱发送邮件的视图</td>
+    </tr>
+    <tr>
+      <td>passwords/reset.blade.php</td>
+      <td>重置密码的页面视图</td>
+    </tr>
+  </tbody>
+</table>
+
 <h3 id="本地化">本地化</h3>
 <p>安装语言包 Laravel Lang，此项目支持了52个国家的语言</p>
 
@@ -127,8 +151,8 @@ yarn <span class="nb">install
 </code></pre></div></div>
 
 <h3 id="验证码">验证码</h3>
-
 <h4 id="安装第三方扩展包-mewscaptcha-作为基础来实现验证码功能">安装第三方扩展包 mews/captcha 作为基础来实现验证码功能。</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>composer require <span class="s2">"mews/captcha:~3.0"</span>
 
@@ -137,6 +161,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 
 <h4 id="页面嵌入">页面嵌入</h4>
 <h5 id="前端展示">前端展示</h5>
+<p>终端中执行：</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">class=</span><span class="s">"thumbnail captcha mt-3 mb-2"</span> 
      <span class="na">src=</span><span class="s">""</span> 
@@ -196,6 +221,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 
 <h3 id="只能编辑自己的资料">只能编辑自己的资料</h3>
 <h4 id="policy-授权策略类">Policy 授权策略类</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:policy UserPolicy
 </code></pre></div></div>
@@ -357,8 +383,10 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 </code></pre></div></div>
 
 <h3 id="n1-问题">N+1 问题</h3>
-<h4 id="产生原因遍历-orm-关联数据时每次循环都要向数据库查询关联数据读-30-条就要执行-30--2--1--61-条语句所以称为-n1-问题">产生原因：遍历 ORM 关联数据时，每次循环都要向数据库查询关联数据，读 30 条就要执行 30 * 2 + 1 = 61 条语句，所以称为 N+1 问题。</h4>
-<h4 id="解决方案通过-eloquent-提供的-预加载功能-来解决此问题">解决方案：通过 Eloquent 提供的 <a href="https://learnku.com/docs/laravel/7.x/eloquent-relationships/7500#eager-loading">预加载功能</a> 来解决此问题：</h4>
+<h4 id="产生原因">产生原因：</h4>
+<p>遍历 ORM 关联数据时，每次循环都要向数据库查询关联数据，读 30 条就要执行 30 * 2 + 1 = 61 条语句，所以称为 N+1 问题。</p>
+<h4 id="解决方案">解决方案：</h4>
+<p>通过 Eloquent 提供的 <a href="https://learnku.com/docs/laravel/7.x/eloquent-relationships/7500#eager-loading">预加载功能</a> 来解决此问题：</p>
 
 <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$topics</span> <span class="o">=</span> <span class="nc">Topic</span><span class="o">::</span><span class="nf">with</span><span class="p">(</span><span class="s1">'user'</span><span class="p">,</span> <span class="s1">'category'</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">paginate</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
 </code></pre></div></div>
@@ -402,14 +430,18 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 <h4 id="避免-csrf-攻击的方法">避免 CSRF 攻击的方法</h4>
 <ul>
   <li>Laravel 会自动为每个活跃的用户的会话生成一个 CSRF「令牌」。该令牌用于验证经过身份验证的用户是否是向应用程序发出请求的用户。</li>
-  <li>在定义 HTMl 表单时，包含一个隐藏的 CSRF 标记字段。
+  <li>
+    <p>在定义 HTMl 表单时，包含一个隐藏的 CSRF 标记字段。</p>
+
     <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">"POST"</span> <span class="na">action=</span><span class="s">"/profile"</span><span class="nt">&gt;</span>
   @csrf
   ...
   <span class="nt">&lt;/form&gt;</span>
 </code></pre></div>    </div>
   </li>
-  <li>X-CSRF-TOKEN （通过验证的同时，还能方便Jquery AJAX 使用）
+  <li>
+    <p>X-CSRF-TOKEN （通过验证的同时，还能方便Jquery AJAX 使用）</p>
+
     <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"csrf-token"</span> <span class="na">content=</span><span class="s">""</span><span class="nt">&gt;</span>
 </code></pre></div>    </div>
   </li>
@@ -547,6 +579,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 
 <h3 id="自定义-artisan-命令">自定义 Artisan 命令</h3>
 <h4 id="新建命令">新建命令</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:command SyncUserActivedAt <span class="nt">--command</span><span class="o">=</span>larabbs:sync-user-actived-at
 </code></pre></div></div>
@@ -564,6 +597,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
 </code></pre></div></div>
 
 <h4 id="执行命令">执行命令</h4>
+<p>终端中执行：</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan larabbs:sync-user-actived-at
 </code></pre></div></div>
