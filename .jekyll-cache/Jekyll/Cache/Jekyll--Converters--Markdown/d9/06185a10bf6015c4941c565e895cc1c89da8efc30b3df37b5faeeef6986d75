@@ -1,0 +1,107 @@
+I"�<h1 id="开发适用于-laravel-的-composer-包">开发适用于 Laravel 的 Composer 包</h1>
+
+<h2 id="目录结构">目录结构</h2>
+
+<p>可以通过 <code class="language-plaintext highlighter-rouge">composer init</code> 创建初始化目录</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>project
+	|_ src
+	|_ tests
+	|_ vendor
+	|_ .editorconfig
+	|_ .gitattributes
+	|_ .gitignore
+	|_ .php_cs
+	|_ composer.json
+	|_ composer.lock
+	|_ phpunit.xml.dist
+	|_ README.md
+</code></pre></div></div>
+
+<p>主要代码放在 <code class="language-plaintext highlighter-rouge">project/src</code> 下面</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>project
+	|_ src
+		|_ config
+			|_ example.php
+		|_ database
+			|_ migrations
+				|_ create_example_tables.php
+		|_ Example.php
+		|_ ServiceProvider.php
+</code></pre></div></div>
+
+<h2 id="为-laravel-集成优化">为 Laravel 集成优化</h2>
+
+<ol>
+  <li>创建 <code class="language-plaintext highlighter-rouge">src/ServiceProvider.php</code></li>
+</ol>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kn">namespace</span> <span class="nn">Catname\Example</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">ServiceProvider</span> <span class="k">extends</span> <span class="err">\</span><span class="nc">Illuminate\Support\ServiceProvider</span>
+<span class="p">{</span>
+    <span class="c1">// Laravel 扩展包延迟注册</span>
+    <span class="k">protected</span> <span class="nv">$defer</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">register</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">app</span><span class="o">-&gt;</span><span class="nf">singleton</span><span class="p">(</span><span class="nc">Example</span><span class="o">::</span><span class="n">class</span><span class="p">,</span> <span class="k">function</span><span class="p">(){</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="nc">Example</span><span class="p">();</span>
+        <span class="p">});</span>
+
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">app</span><span class="o">-&gt;</span><span class="nf">alias</span><span class="p">(</span><span class="nc">Example</span><span class="o">::</span><span class="n">class</span><span class="p">,</span> <span class="s1">'example'</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Laravel 扩展包延迟注册</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">provides</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nc">Example</span><span class="o">::</span><span class="n">class</span><span class="p">,</span> <span class="s1">'example'</span><span class="p">];</span>
+    <span class="p">}</span>
+    
+    <span class="k">public</span> <span class="k">function</span> <span class="n">boot</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// 发布配置文件</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">publishes</span><span class="p">([</span>
+            <span class="k">__DIR__</span><span class="mf">.</span><span class="s1">'/config/example.php'</span> <span class="o">=&gt;</span> <span class="nf">config_path</span><span class="p">(</span><span class="s1">'example.php'</span><span class="p">),</span>
+        <span class="p">],</span> <span class="s1">'config'</span><span class="p">);</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">publishes</span><span class="p">([</span>
+            <span class="k">__DIR__</span><span class="mf">.</span><span class="s1">'/database/migrations/create_example_tables.php'</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">getMigrationFileName</span><span class="p">(</span><span class="s1">'create_example_tables.php'</span><span class="p">),</span>
+        <span class="p">],</span> <span class="s1">'migrations'</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>发布文件的命令( 此命令会发布所有文件，配置文件和数据库迁移文件)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</span><span class="s2">"Catname</span><span class="se">\E</span><span class="s2">xample</span><span class="se">\S</span><span class="s2">erviceProvider"</span>
+</code></pre></div></div>
+
+<p>通过定义的标签发布指定的文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan vendor:publish <span class="nt">--tag</span><span class="o">=</span>config
+</code></pre></div></div>
+
+<p><a href="https://learnku.com/docs/laravel/8.5/packages/10394#d2bcef">更多发布资源有关内容参考</a></p>
+
+<ol>
+  <li>在 <code class="language-plaintext highlighter-rouge">composer.json</code> 中添加下列内容</li>
+</ol>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">.</span><span class="w">
+</span><span class="err">.</span><span class="w">
+</span><span class="err">.</span><span class="w">
+</span><span class="nl">"extra"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"laravel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"Catname</span><span class="se">\\</span><span class="s2">Example</span><span class="se">\\</span><span class="s2">ServiceProvider"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>这样便无需手动注册服务提供器。</p>
+
+:ET
