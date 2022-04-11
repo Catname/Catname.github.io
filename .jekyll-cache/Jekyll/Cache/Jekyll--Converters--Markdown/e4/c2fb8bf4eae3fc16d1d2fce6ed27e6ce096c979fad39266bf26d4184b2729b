@@ -1,0 +1,842 @@
+I"�<h3 id="一般部署">一般部署</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. git clone git@xxx.xxx.com:xxxxx/xxx.git <span class="o">&amp;&amp;</span> <span class="nb">cd </span>xxx
+2. composer <span class="nb">install
+</span>3. <span class="nb">cp </span>env.example env.
+4. php artisan key:generate
+5. php artisan jwt:secret
+6. <span class="c"># 填写好 .env 文件中的各项配置，特别是数据库，Redis 等</span>
+
+   <span class="c"># 开发环境运行数据库迁移文件 并且运行填充文件 填充测试数据</span>
+   <span class="c"># 注意！运行此命令前，请先备份 Laravel-admin 管理后台数据，具体查看本文档-其他杂项</span>
+7. php artisan migrate:refresh <span class="nt">--seed</span>
+   <span class="c"># 正式环境不需要填充所有数据</span>
+   php artisan migrate
+</code></pre></div></div>
+
+<h3 id="开发规范">开发规范</h3>
+
+<p>在 <a href="https://learnku.com/docs/laravel-specification/7.x/whats-the-use-of-standards/7588">Laravel 项目开发规范</a> 的基础上，按下列规范进行开发。</p>
+
+<ul>
+  <li>数据库<strong>必须</strong>使用 <code class="language-plaintext highlighter-rouge">数据库迁移文件</code> 做统一版本管理，方便多人协作开发和后期切换数据库需要。</li>
+  <li>所有金额相关的字段，字段类型为 <code class="language-plaintext highlighter-rouge">int</code> 单位统一为 <code class="language-plaintext highlighter-rouge">分</code>。</li>
+  <li>所有时间操作统一使用 <code class="language-plaintext highlighter-rouge">Carbon</code> 类。</li>
+  <li>模型关联后的关联查询<strong>必须</strong>使用 <code class="language-plaintext highlighter-rouge">预加载 with()</code> 防止 N+1 问题，除非情况不允许。</li>
+  <li>获取当前运行环境 <code class="language-plaintext highlighter-rouge">app('env')</code> 。</li>
+  <li>添加自定义配置文件，放在 <code class="language-plaintext highlighter-rouge">app/config/</code> ，使用 <code class="language-plaintext highlighter-rouge">config('文件名.键名')</code> 获取相对应的配置。</li>
+  <li>表单验证类 统一继承 基类 <code class="language-plaintext highlighter-rouge">BaseRequest</code> ，因为基类中重写了表单验证未通过后返回的消息结构。</li>
+  <li>写日志用 Monolog ，可在 <code class="language-plaintext highlighter-rouge">config/logging.php</code> 中自定义 channel 实现不同文件记录不同日志。</li>
+  <li>新建时间类字段使用 datetime 类型，防止出现 <code class="language-plaintext highlighter-rouge">Y2K38</code> 问题。</li>
+</ul>
+
+<h3 id="初始化">初始化</h3>
+
+<h4 id="修改-configappphp-配置">修改 <code class="language-plaintext highlighter-rouge">config/app.php</code> 配置</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">return</span> <span class="p">[</span>
+
+    <span class="mf">...</span>
+
+    <span class="cm">/*
+    |--------------------------------------------------------------------------
+    | Application Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the default timezone for your application, which
+    | will be used by the PHP date and date-time functions. We have gone
+    | ahead and set this to a sensible default for you out of the box.
+    |
+    */</span>
+
+    <span class="s1">'timezone'</span> <span class="o">=&gt;</span> <span class="s1">'Asia/Shanghai'</span><span class="p">,</span>
+
+    <span class="cm">/*
+    |--------------------------------------------------------------------------
+    | Application Locale Configuration
+    |--------------------------------------------------------------------------
+    |
+    | The application locale determines the default locale that will be used
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
+    |
+    */</span>
+
+    <span class="s1">'locale'</span> <span class="o">=&gt;</span> <span class="s1">'zh_CN'</span><span class="p">,</span>
+
+    <span class="cm">/*
+    |--------------------------------------------------------------------------
+    | Application Fallback Locale
+    |--------------------------------------------------------------------------
+    |
+    | The fallback locale determines the locale to use when the current one
+    | is not available. You may change the value to correspond to any of
+    | the language folders that are provided through your application.
+    |
+    */</span>
+
+    <span class="s1">'fallback_locale'</span> <span class="o">=&gt;</span> <span class="s1">'en'</span><span class="p">,</span>
+
+    <span class="cm">/*
+    |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | This locale will be used by the Faker PHP library when generating fake
+    | data for your database seeds. For example, this will be used to get
+    | localized telephone numbers, street address information and more.
+    |
+    */</span>
+
+    <span class="s1">'faker_locale'</span> <span class="o">=&gt;</span> <span class="s1">'zh_CN'</span><span class="p">,</span>
+
+    <span class="mf">...</span>
+
+<span class="p">];</span>
+</code></pre></div></div>
+
+<h4 id="添加自定义辅助函数文件-apphelpersphp">添加自定义辅助函数文件 <code class="language-plaintext highlighter-rouge">app/helpers.php</code></h4>
+
+<p>在 <code class="language-plaintext highlighter-rouge">composer.json</code> 中添加下面内容</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">...</span><span class="w">
+</span><span class="nl">"autoload"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"psr-4"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="err">...</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"files"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"app/helpers.php"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="err">,</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span></code></pre></div></div>
+
+<p>添加后，运行以下命令重新加载文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>composer dump-autoload
+</code></pre></div></div>
+
+<h4 id="路由分组">路由分组</h4>
+
+<p><code class="language-plaintext highlighter-rouge">app/Providers/RouteServiceProvider.php</code></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mf">...</span>
+<span class="k">public</span> <span class="k">function</span> <span class="n">boot</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">configureRateLimiting</span><span class="p">();</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">routes</span><span class="p">(</span><span class="k">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nc">Route</span><span class="o">::</span><span class="nf">prefix</span><span class="p">(</span><span class="s1">'api'</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">middleware</span><span class="p">(</span><span class="s1">'api'</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">namespace</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">namespace</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">group</span><span class="p">(</span><span class="nf">base_path</span><span class="p">(</span><span class="s1">'routes/api.php'</span><span class="p">));</span>
+        <span class="nc">Route</span><span class="o">::</span><span class="nf">prefix</span><span class="p">(</span><span class="s1">'api'</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">middleware</span><span class="p">(</span><span class="s1">'api'</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">namespace</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">namespace</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">group</span><span class="p">(</span><span class="nf">base_path</span><span class="p">(</span><span class="s1">'routes/common.php'</span><span class="p">));</span>
+
+        <span class="nc">Route</span><span class="o">::</span><span class="nf">middleware</span><span class="p">(</span><span class="s1">'web'</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">namespace</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="n">namespace</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">group</span><span class="p">(</span><span class="nf">base_path</span><span class="p">(</span><span class="s1">'routes/web.php'</span><span class="p">));</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+<span class="mf">...</span>
+</code></pre></div></div>
+
+<h3 id="请求">请求</h3>
+
+<h4 id="规范返回格式给所有-api-请求加上请求头">规范返回格式，给所有 API 请求加上请求头</h4>
+
+<ol>
+  <li>
+    <p>新建中间件 <code class="language-plaintext highlighter-rouge">AcceptHeader.php</code></p>
+
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mf">...</span>
+<span class="k">public</span> <span class="k">function</span> <span class="n">handle</span><span class="p">(</span><span class="kt">Request</span> <span class="nv">$request</span><span class="p">,</span> <span class="kt">Closure</span> <span class="nv">$next</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$request</span><span class="o">-&gt;</span><span class="n">headers</span><span class="o">-&gt;</span><span class="nf">set</span><span class="p">(</span><span class="s1">'Accept'</span><span class="p">,</span> <span class="s1">'application/json'</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nv">$next</span><span class="p">(</span><span class="nv">$request</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="mf">...</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>注册中间件 <code class="language-plaintext highlighter-rouge">app/Http/Kernel.php</code></p>
+
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mf">...</span>
+<span class="k">protected</span> <span class="nv">$middlewareGroups</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'web'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+           <span class="mf">...</span>
+    <span class="p">],</span>
+   
+    <span class="s1">'api'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="err">\</span><span class="nc">App\Http\Middleware\AcceptHeader</span><span class="o">::</span><span class="n">class</span><span class="p">,</span>
+        <span class="mf">...</span>
+    <span class="p">],</span>
+<span class="p">];</span>
+<span class="mf">...</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="路由">路由</h3>
+
+<h4 id="模型存在却抛出-no-query-results-for-model-appmodelsxxxx-异常">模型存在，却抛出 <code class="language-plaintext highlighter-rouge">No query results for model [App\\Models\\xxxx]</code> 异常</h4>
+
+<p>这个通常由路由绑定出的问题，注意有绑定模型的路由，同路径的路由需要放在没绑定路由的后面</p>
+
+<p>例如：/posts/create 和 /posts/{post} 的是同路径，/posts/{post} 必须放在 /posts/create 后面</p>
+
+<p>一定注意路由的先后顺序</p>
+
+<h3 id="管道-pipeline">管道 Pipeline</h3>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">public</span> <span class="k">function</span> <span class="n">create</span><span class="p">(</span><span class="kt">Request</span> <span class="nv">$request</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$pipes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nc">RemoveBadWords</span><span class="o">::</span><span class="n">class</span><span class="p">,</span>
+        <span class="nc">ReplaceLinkTags</span><span class="o">::</span><span class="n">class</span><span class="p">,</span>
+        <span class="nc">RemoveScriptTags</span><span class="o">::</span><span class="n">class</span>
+    <span class="p">];</span>
+    <span class="nv">$post</span> <span class="o">=</span> <span class="nf">app</span><span class="p">(</span><span class="nc">Pipeline</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+        <span class="o">-&gt;</span><span class="nf">send</span><span class="p">(</span><span class="nv">$request</span><span class="o">-&gt;</span><span class="n">content</span><span class="p">)</span>
+        <span class="o">-&gt;</span><span class="nf">through</span><span class="p">(</span><span class="nv">$pipes</span><span class="p">)</span>
+        <span class="o">-&gt;</span><span class="nf">then</span><span class="p">(</span><span class="k">function</span> <span class="p">(</span><span class="nv">$content</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nc">Post</span><span class="o">::</span><span class="nf">create</span><span class="p">([</span><span class="s1">'content'</span> <span class="o">=&gt;</span> <span class="s1">'content'</span><span class="p">]);</span>
+        <span class="p">});</span>
+    <span class="c1">// return any type of response</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="中间件">中间件</h3>
+
+<h4 id="获取当前请求的-url">获取当前请求的 URL</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 不带主机域名和参数</span>
+<span class="nv">$request</span><span class="o">-&gt;</span><span class="nf">path</span><span class="p">();</span>          <span class="c1">//结果： api/home/test</span>
+
+<span class="c1">// 不带主机域名，带 query 参数</span>
+<span class="nv">$request</span><span class="o">-&gt;</span><span class="nf">getRequestUrl</span><span class="p">();</span> <span class="c1">//结果： /api/home/test?id=1</span>
+
+<span class="c1">// 带主机域名，不带 query 参数</span>
+<span class="nv">$request</span><span class="o">-&gt;</span><span class="nf">url</span><span class="p">();</span>           <span class="c1">//结果： http://xxx.test/api/home/test</span>
+<span class="c1">// 注意最前面 '/' 的区别</span>
+</code></pre></div></div>
+
+<h4 id="获取当前请求的-http-method">获取当前请求的 HTTP Method</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$request</span><span class="o">-&gt;</span><span class="nf">method</span><span class="p">();</span> <span class="c1">//结果： POST</span>
+</code></pre></div></div>
+
+<h3 id="捕获异常">捕获异常</h3>
+
+<h4 id="捕获确切的数据库错误">捕获确切的数据库错误</h4>
+
+<p>如果您想捕获 Eloquent Query 异常，请使用特定的 <code class="language-plaintext highlighter-rouge">QueryException</code> 代替默认的 Exception 类，您将能够获得错误的确切 SQL 代码。</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="p">{</span>
+    <span class="c1">// 一些 Eloquent/SQL 声明</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="err">\</span><span class="nc">Illuminate\Database\QueryException</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$e</span><span class="o">-&gt;</span><span class="nf">getCode</span><span class="p">()</span> <span class="o">===</span> <span class="s1">'23000'</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// integrity constraint violation</span>
+        <span class="k">return</span> <span class="nf">back</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">withError</span><span class="p">(</span><span class="s1">'Invalid data'</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="控制器">控制器</h3>
+
+<h4 id="模型依赖注入">模型依赖注入</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kn">namespace</span> <span class="nn">App\Http\Controllers</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">ExampleController</span> <span class="kd">extends</span> <span class="nc">Controller</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">show</span><span class="p">(</span><span class="kt">Model</span> <span class="nv">$model</span><span class="p">)</span>
+	<span class="p">{</span>
+        <span class="mf">...</span>
+    	<span class="c1">// 如果需要关联查询</span>
+        <span class="nv">$model</span><span class="o">-&gt;</span><span class="nf">load</span><span class="p">(</span><span class="s1">'relation'</span><span class="p">);</span>
+        <span class="mf">...</span>
+	<span class="p">}</span>
+    <span class="mf">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="服务提供者">服务提供者</h3>
+
+<h4 id="创建">创建</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:provider NotificationServiceProvider
+</code></pre></div></div>
+
+<h4 id="注册-configappphp">注册 <code class="language-plaintext highlighter-rouge">config/app.php</code></h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">return</span> <span class="p">[</span>
+    <span class="mf">...</span>
+    <span class="s1">'providers'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="mf">...</span>
+        <span class="nc">App\Providers\NotificationServiceProvider</span><span class="o">::</span><span class="n">class</span><span class="p">,</span>
+        <span class="mf">...</span>
+    <span class="p">],</span>
+    <span class="mf">...</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<h4 id="用例监听日志指定等级日志推送消息">用例：监听日志，指定等级日志推送消息</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kn">namespace</span> <span class="nn">App\Providers</span><span class="p">;</span>
+
+<span class="kn">use</span> <span class="n">App\Jobs\noticeIssue</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Illuminate\Support\ServiceProvider</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">NotificationServiceProvider</span> <span class="kd">extends</span> <span class="nc">ServiceProvider</span>
+<span class="p">{</span>
+    <span class="mf">...</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">boot</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="err">\</span><span class="nc">Log</span><span class="o">::</span><span class="nf">listen</span><span class="p">(</span><span class="k">function</span> <span class="p">(</span><span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// 这里监听到日志后，判断日志的等级，然后做相应处理</span>
+            <span class="nv">$noticeMsg</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">'level'</span>   <span class="o">=&gt;</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="n">level</span><span class="p">,</span> <span class="c1">// 日志的等级</span>
+                <span class="s1">'message'</span> <span class="o">=&gt;</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="n">message</span><span class="p">,</span>
+                <span class="s1">'context'</span> <span class="o">=&gt;</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">,</span>
+            <span class="p">];</span>
+            <span class="nv">$data</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="c1">// 推送数据</span>
+            <span class="p">];</span>
+            <span class="n">noticeIssue</span><span class="o">::</span><span class="nf">dispatch</span><span class="p">(</span><span class="nv">$data</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">onQueue</span><span class="p">(</span><span class="s1">'issues'</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="数据库操作">数据库操作</h3>
+
+<h4 id="更新-json-字段">更新 JSON 字段</h4>
+
+<p>更新 JSON 字段时，你可以使用 <code class="language-plaintext highlighter-rouge">-&gt;</code> 语法访问 JSON 对象中相应的值。注意，此操作只能支持 MySQL 5.7+ 和 PostgreSQL 9.5+ ：</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$affected</span> <span class="o">=</span> <span class="no">DB</span><span class="o">::</span><span class="nf">table</span><span class="p">(</span><span class="s1">'users'</span><span class="p">)</span>
+              <span class="o">-&gt;</span><span class="nf">where</span><span class="p">(</span><span class="s1">'id'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+              <span class="o">-&gt;</span><span class="nf">update</span><span class="p">([</span><span class="s1">'options-&gt;enabled'</span> <span class="o">=&gt;</span> <span class="kc">true</span><span class="p">]);</span>
+</code></pre></div></div>
+
+<h3 id="artisan-命令">Artisan 命令</h3>
+
+<h4 id="命令使用参数-详情参考">命令使用参数 <a href="https://learnku.com/docs/laravel/8.5/artisan/10381#arguments">详情参考</a></h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kn">namespace</span> <span class="nn">App\Console\Commands</span><span class="p">;</span>
+
+<span class="kn">use</span> <span class="nc">Illuminate\Console\Command</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Illuminate\Support\Facades\Cache</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">Test</span> <span class="kd">extends</span> <span class="nc">Command</span>
+<span class="p">{</span>
+    <span class="k">protected</span> <span class="nv">$signature</span> <span class="o">=</span> <span class="s1">'example:test {--test}'</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$description</span> <span class="o">=</span> <span class="s1">'参数示范'</span><span class="p">;</span>
+    <span class="mf">...</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">handle</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// 获取选项的值</span>
+        <span class="nv">$option</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">option</span><span class="p">(</span><span class="s1">'test'</span><span class="p">);</span>
+        <span class="c1">// $this-&gt;argument('argument') 获取参数的值</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="集合">集合</h3>
+
+<h4 id="举例">举例</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	<span class="k">protected</span> <span class="k">function</span> <span class="n">shouldPassThrough</span><span class="p">(</span><span class="nv">$request</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 下面这些路由不验证权限</span>
+        <span class="nv">$excepts</span> <span class="o">=</span> <span class="nb">array_merge</span><span class="p">(</span><span class="nf">config</span><span class="p">(</span><span class="s1">'admin.auth.excepts'</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">[</span>
+            <span class="s1">'authorizations'</span><span class="p">,</span> <span class="c1">// 登录</span>
+            <span class="s1">'authorizations/current'</span><span class="p">,</span> <span class="c1">// 刷新 Token // 注销</span>
+        <span class="p">]);</span>
+        <span class="k">return</span> <span class="nf">collect</span><span class="p">(</span><span class="nv">$excepts</span><span class="p">)</span>
+            <span class="o">-&gt;</span><span class="nf">map</span><span class="p">(</span><span class="s1">'admin_base_path'</span><span class="p">)</span><span class="c1">// 加上前缀</span>
+            <span class="o">-&gt;</span><span class="nf">contains</span><span class="p">(</span><span class="k">function</span> <span class="p">(</span><span class="nv">$except</span><span class="p">)</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$request</span><span class="p">)</span> <span class="p">{</span>
+                <span class="c1">// 去掉最前面的 '/'</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nv">$except</span> <span class="o">!==</span> <span class="s1">'/'</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nv">$except</span> <span class="o">=</span> <span class="nb">trim</span><span class="p">(</span><span class="nv">$except</span><span class="p">,</span> <span class="s1">'/'</span><span class="p">);</span>
+                <span class="p">}</span>
+                
+                <span class="k">return</span> <span class="nv">$request</span><span class="o">-&gt;</span><span class="nf">is</span><span class="p">(</span><span class="nv">$except</span><span class="p">);</span>
+            <span class="p">});</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<h5 id="map">map</h5>
+
+<h5 id="contains">contains</h5>
+
+<h3 id="队列">队列</h3>
+
+<h4 id="手动失败">手动失败</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">fail</span><span class="p">(</span><span class="s1">'队列失败。'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="orm-模型">ORM 模型</h3>
+
+<h4 id="根据子表的值筛选主表的项-model-with-wherehas-">根据子表的值筛选主表的项 Model-&gt;with()-&gt;whereHas() *</h4>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$permissions</span> <span class="o">=</span> <span class="nc">User</span><span class="o">::</span><span class="nf">select</span><span class="p">(</span><span class="s1">'id'</span><span class="p">,</span> <span class="s1">'name'</span><span class="p">)</span>
+    			<span class="o">-&gt;</span><span class="nf">with</span><span class="p">(</span><span class="s1">'roles.permissions:id,name,title'</span><span class="p">)</span>
+    			<span class="o">-&gt;</span><span class="nf">whereHas</span><span class="p">(</span><span class="s1">'roles'</span><span class="p">,</span> <span class="k">function</span> <span class="p">(</span><span class="kt">Builder</span> <span class="nv">$query</span><span class="p">)</span> <span class="p">{</span>
+            		<span class="nv">$query</span><span class="o">-&gt;</span><span class="nf">where</span><span class="p">(</span><span class="s1">'model_id'</span><span class="p">,</span><span class="nf">auth</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">id</span><span class="p">())</span>
+                          <span class="o">-&gt;</span><span class="nf">select</span><span class="p">(</span><span class="s1">'id'</span><span class="p">,</span><span class="s1">'name'</span><span class="p">,</span><span class="s1">'title'</span><span class="p">);</span>
+        		<span class="p">})</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>主表在 只有字表中 model_id 为指定值时才会被查出来。</p>
+
+<h4 id="嵌套预加载">嵌套预加载</h4>
+
+<p>在一个 Eloquent 语句中预加载所有书籍作者及其联系方式：</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$books</span> <span class="o">=</span> <span class="nc">Book</span><span class="o">::</span><span class="nf">with</span><span class="p">(</span><span class="s1">'author.contacts'</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>book 的关联 author 的关联 contacts</p>
+
+<h4 id="多对多关联">多对多关联</h4>
+
+<p>给当前项目添加用户 id 为 1 的中间关联数据，并且附加 user_type 字段</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$project</span><span class="o">-&gt;</span><span class="nf">allusers</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">attach</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s1">'user_type'</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">]);</span>
+</code></pre></div></div>
+
+<p>删除用户 id 为 1 的中间关联数据，注意，当前项目下所有 id 为 1 的都会被删除，<strong>不适用于一个项目下有多个不同 user_type 但相同用户 id 的情况</strong></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$project</span><span class="o">-&gt;</span><span class="nf">allusers</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">detach</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="用户授权策略类-policy">用户授权策略类 (Policy)</h3>
+
+<p>必须在同名控制器中才会生效？？</p>
+
+<h4 id="注意神坑如果在用户授权策略类中查询过关联模型那么关联模型会被加入结果集中需要在返回前调用-model-unsetrelationrelationname-去掉">注意神坑！！如果在用户授权策略类中查询过关联模型，那么关联模型会被加入结果集中，需要在返回前调用 <code class="language-plaintext highlighter-rouge">$model-&gt;unsetRelation('relationName')</code> 去掉。</h4>
+
+<h3 id="模型观察者-observer"><a href="https://learnku.com/docs/laravel/8.5/eloquent/10409#cab083">模型观察者 (Observer)</a></h3>
+
+<h4 id="使用">使用</h4>
+
+<p>生成观察者类</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:observer UserObserver <span class="nt">--model</span><span class="o">=</span>User
+</code></pre></div></div>
+
+<p>在 <code class="language-plaintext highlighter-rouge">AppServiceProvider</code> 服务提供者中注册观察者</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">use</span> <span class="nc">App\Models\User</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">App\Observers\UserObserver</span><span class="p">;</span>
+
+<span class="cd">/**
+ * Register any events for your application.
+ *
+ * @return void
+ */</span>
+<span class="k">public</span> <span class="k">function</span> <span class="n">boot</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="nc">User</span><span class="o">::</span><span class="nf">observe</span><span class="p">(</span><span class="nc">UserObserver</span><span class="o">::</span><span class="n">class</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="调用顺序">调用顺序</h4>
+
+<p>modelA<br />
+ObserverA</p>
+
+<p>监听 modelA 的 created 事件</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$A</span> <span class="o">=</span> <span class="no">MODELA</span><span class="o">::</span><span class="nf">create</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
+
+<span class="n">next</span>
+</code></pre></div></div>
+
+<p>实际运行顺序<br />
+create-&gt;observer-&gt;next</p>
+
+<h4 id="踩过的坑">踩过的坑</h4>
+
+<h5 id="坑1">坑1</h5>
+
+<h6 id="问题场景工单系统微信登录返回预期外数据前台用户登录一切正常后台用户登录会多返回后台用户的角色信息但是登录控制器里面没有任何和-roles-有关的代码">问题场景：工单系统微信登录返回预期外数据，前台用户登录一切正常，后台用户登录会多返回后台用户的角色信息，但是登录控制器里面没有任何和 roles 有关的代码</h6>
+
+<p>前台普通用户登录后返回：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+          </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"messages"</span><span class="p">:</span><span class="w"> </span><span class="s2">"登录成功"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvaXNzdWVjcy5xaWZ1eGlvbmcuY29tXC9hcGlcL3dlY2hhdFwvYXV0aG9yaXphdGlvbnMiLCJpYXQiOjE2Mzk5OTI2NTgsImV4cCI6MTYzOTk5OTg1OCwibmJmIjoxNjM5OTkyNjU4LCJqdGkiOiJoc1NLMFptRGRrZGl0RDlRIiwic3ViIjoxNCwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsInJvbGUiOiJ1c2VyIn0.GEUahFc4XlxaFvdV4MclSJ4CvLCCdOKKJGQwvZ04I5s"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"expires"</span><span class="p">:</span><span class="w"> </span><span class="mi">1639999858</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"is_binding_mobile"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"is_staff"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"userInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"nick_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"昵称"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"real_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"王老五"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"mobile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"18888888888"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"account_status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"avatar_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epk6XJfVGqsW5y4zFjzWy3SvYN1KRHQYLTKGnbUanOfBeW4sR0z6ZyNBgtCVmOceicTlnyBcaTPbWA/132"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"gender"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"成都市企服熊科技有限公司"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"job"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PHP后端"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-20 16:26:37"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-20 17:30:58"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>后台用户微信登录后返回</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+          </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"messages"</span><span class="p">:</span><span class="w"> </span><span class="s2">"登录成功"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvaXNzdWVjcy5xaWZ1eGlvbmcuY29tXC9hcGlcL3dlY2hhdFwvYXV0aG9yaXphdGlvbnMiLCJpYXQiOjE2Mzk5OTI2NTgsImV4cCI6MTYzOTk5OTg1OCwibmJmIjoxNjM5OTkyNjU4LCJqdGkiOiJoc1NLMFptRGRrZGl0RDlRIiwic3ViIjoxNCwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsInJvbGUiOiJ1c2VyIn0.GEUahFc4XlxaFvdV4MclSJ4CvLCCdOKKJGQwvZ04I5s"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"expires"</span><span class="p">:</span><span class="w"> </span><span class="mi">1639999858</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"is_binding_mobile"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"is_staff"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"userInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"nick_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"昵称"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"real_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"王老五"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"mobile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"18888888888"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"account_status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"avatar_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83epk6XJfVGqsW5y4zFjzWy3SvYN1KRHQYLTKGnbUanOfBeW4sR0z6ZyNBgtCVmOceicTlnyBcaTPbWA/132"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"gender"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"成都市企服熊科技有限公司"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"job"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PHP后端"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-20 16:26:37"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-20 17:30:58"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                  </span><span class="p">{</span><span class="w">
+                      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"basicUser"</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"基础用户"</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"guard_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api"</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-17 16:36:08"</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-12-17 16:36:08"</span><span class="p">,</span><span class="w">
+                      </span><span class="nl">"pivot"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                          </span><span class="nl">"model_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
+                          </span><span class="nl">"role_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                          </span><span class="nl">"model_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"App</span><span class="se">\\</span><span class="s2">Models</span><span class="se">\\</span><span class="s2">User"</span><span class="w">
+                      </span><span class="p">}</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h6 id="产生原因">产生原因</h6>
+
+<p>后台有一个基础用户权限，在添加和更新用户的时候会通过用户模型监听器监听到事件，然后添加权限，产生这个问题的原因在 更新事件，监听到更新事件后，会检查用户是否拥有基础权限，如果没有则加上，在检查之后，会将 roles 加入到 user 的结果集中。</p>
+
+<h6 id="解决办法">解决办法</h6>
+
+<ol>
+  <li>
+    <p>在模型监听器更新事件中，处理完后，执行 <code class="language-plaintext highlighter-rouge">$model-&gt;unsetRelation('roles');</code></p>
+  </li>
+  <li>
+    <p>在不需要返回 roles 的地方使用 <code class="language-plaintext highlighter-rouge">$model-&gt;unsetRelation('roles');</code></p>
+  </li>
+</ol>
+
+<p>推荐使用方法 1</p>
+
+<h3 id="composer">Composer</h3>
+
+<h4 id="线上服务器更新指定-composer-包">线上服务器更新指定 Composer 包</h4>
+
+<ol>
+  <li>
+    <p>在本地运行</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>composer update xxx/xxxxxxxx
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>将更新后的  <code class="language-plaintext highlighter-rouge">composer.lock</code> 文件提交到服务器</p>
+  </li>
+  <li>
+    <p>服务器终端运行</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>composer <span class="nb">install</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="钉钉">钉钉</h3>
+
+<h4 id="单聊机器人">单聊机器人</h4>
+
+<p>按文档传参数会提示：发送可交互卡片的时候提示 非场景群；</p>
+
+<p>解决方法：机器人应该用   appKey ：机器人appKey</p>
+
+<h4 id="回调事件加解密">回调事件加解密</h4>
+
+<h5 id="事件订阅注册">事件订阅注册</h5>
+
+<p>在注册时不要按照文档说的用企业 corpId，而是用自建应用的 appKey，否则会报 AES 解密错误</p>
+
+<p>注册代码</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+	<span class="nv">$crypt</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DingCallbackCrypto</span><span class="p">();</span>
+    <span class="nv">$text</span> <span class="o">=</span> <span class="nv">$crypt</span><span class="o">-&gt;</span><span class="nf">getDecryptMsg</span><span class="p">(</span><span class="nv">$request</span><span class="o">-&gt;</span><span class="n">msg_signature</span><span class="p">,</span> <span class="nv">$request</span><span class="o">-&gt;</span><span class="n">timestamp</span><span class="p">,</span> <span class="nv">$request</span><span class="o">-&gt;</span><span class="n">nonce</span><span class="p">,</span> <span class="nv">$request</span><span class="o">-&gt;</span><span class="n">encrypt</span><span class="p">);</span>
+    <span class="err">\</span><span class="nc">Log</span><span class="o">::</span><span class="nf">channel</span><span class="p">(</span><span class="s1">'hotlog'</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">debug</span><span class="p">(</span><span class="nv">$text</span><span class="p">);</span>
+    <span class="nv">$res</span> <span class="o">=</span> <span class="nv">$crypt</span><span class="o">-&gt;</span><span class="nf">getEncryptedMap</span><span class="p">(</span><span class="s2">"success"</span><span class="p">);</span>
+	<span class="c1">//return response($res);</span>
+    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$res</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nv">$data</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="其他杂项技巧">其他杂项，技巧</h3>
+
+<ul>
+  <li>
+    <p>本地开发调接口的时候，需要带上 JWT-Token ,可以通过自定义 Artisan 命令（<code class="language-plaintext highlighter-rouge">php artisan</code> 命令可以看到当前所有的 artisan 命令）生成有效期一年的JWT-Token，将 Token 存入开发环境变量中（ Postman 等）</p>
+  </li>
+  <li>
+    <p>获取自己（服务端）的 IP 地址：<code class="language-plaintext highlighter-rouge">\request()-&gt;server('SERVER_ADDR');</code></p>
+  </li>
+  <li>
+    <p>本地开发自定义网址的时候不能以 .dev 结尾，否则 Chrome 会强制跳转 https 报证书错误。</p>
+  </li>
+  <li>
+    <p>在运行 <code class="language-plaintext highlighter-rouge">php artisan migrate:refresh --seed</code> 之前，注意备份 laravel-admin 后台数据 <code class="language-plaintext highlighter-rouge">php artisan admin:export-seed</code></p>
+  </li>
+  <li>
+    <p>注意在需要登录状态的控制器的构造方法中加载 api 中间件（如果路由中已经加载 auth:api 中间件，则不需要在控制器中单独加载），这样授权策略类等，才能通过 JWT-Token 获取到当前登录的用户 <code class="language-plaintext highlighter-rouge">$this-&gt;middleware('auth:api');</code></p>
+  </li>
+  <li>
+    <p>返回用户信息相关，统一使用 <code class="language-plaintext highlighter-rouge">UserResource</code> 对敏感信息进行了脱敏，如果因为业务需要，可以这样显示敏感信息 <code class="language-plaintext highlighter-rouge">return (new UserResource($user))-&gt;additional(['code' =&gt; 200, 'messages' =&gt; 'success'])-&gt;showSensitiveFields();</code></p>
+  </li>
+  <li>
+    <p>！！注意访问器这个天坑！！强烈建议所有 status 相关的判断都用 <code class="language-plaintext highlighter-rouge">getRawOriginal()</code> 获取原始值，避免因为有访问器导致判断错误，业务出现 bug 。在 Laravel 7 以后，如果不想使用访问器返回的数据，可以用 <code class="language-plaintext highlighter-rouge">$model-&gt;getRawOriginal('字段名')</code> 获取原始数据。(Laravel 7 之前的版本是 <code class="language-plaintext highlighter-rouge">getOriginal()</code> )，通过关联模型查询也可以使用 <code class="language-plaintext highlighter-rouge">$model-&gt;relationships-&gt;getRawOriginal('字段名')</code></p>
+  </li>
+  <li>
+    <p>注意 Laravel-Admin 可能会占用 名为 admin 的 guard ，如果要新增自定义 guard ，避免使用 admin 这个名字。</p>
+  </li>
+  <li>
+    <p>注意在返回模型前，如果对模型进行过关联查询，关联查询的数据会被添加到模型中，如果后面不需要这些数据，记得在关联查询完成后，直接调用 unsetRelation()。</p>
+  </li>
+  <li>
+    <p>通过 <code class="language-plaintext highlighter-rouge">Carbon::now()-&gt;getPreciseTimestamp()</code> 可以获取指定精度的时间戳。</p>
+
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+* @example getPreciseTimestamp()   1532087464437474 (微秒最大精度)
+* @example getPreciseTimestamp(6)  1532087464437474
+* @example getPreciseTimestamp(5)  153208746443747  (1/100000 秒精度)
+* @example getPreciseTimestamp(4)  15320874644375   (1/10000 秒精度)
+* @example getPreciseTimestamp(3)  1532087464437    (毫秒 precision)
+* @example getPreciseTimestamp(2)  153208746444     (1/100 秒精度)
+* @example getPreciseTimestamp(1)  15320874644      (1/10 秒精度)
+* @example getPreciseTimestamp(0)  1532087464       (秒精度)
+* @example getPreciseTimestamp(-1) 153208746        (10 秒精度)
+* @example getPreciseTimestamp(-2) 15320875         (100 秒精度)
+*/</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>如果需要同样内容在表中只有一条数据，可以用 <code class="language-plaintext highlighter-rouge">firstOrCreate()</code></p>
+
+    <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 按名称检索航班或在它不存在时创建它...</span>
+<span class="nv">$flight</span> <span class="o">=</span> <span class="nc">Flight</span><span class="o">::</span><span class="nf">firstOrCreate</span><span class="p">([</span>
+    <span class="s1">'name'</span> <span class="o">=&gt;</span> <span class="s1">'London to Paris'</span>
+<span class="p">]);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>特别注意：线上环境，用宝塔面板初始化的时候，如果执行 airtisan 命令出现错误，日志文件会用 root 的身份创建，导致运行在 www 的代码没有权限进行读写。</p>
+  </li>
+</ul>
+
+<h3 id="依赖注入">依赖注入</h3>
+
+<blockquote>
+  <p>当A类需要依赖于B类，也就是说需要在A类中实例化B类的对象来使用时候，如果B类中的功能发生改变，也会导致A类中使用B类的地方也要跟着修改，导致A类与B类高耦合。</p>
+</blockquote>
+
+<p>依赖注入本质是在外部将 B 类实例化后，再传到 A 类，这样对 B 类的修改扩展，不用改 A 的代码。</p>
+
+<blockquote>
+  <p>不需要自己内容修改，改成由外部传递。这种由外部负责其依赖需求的行为，我们可以称其为 “控制反转（IoC）”。</p>
+
+  <p>那什么是依赖注入呢？，其实上面的例子也算是依赖注入，不是由自己内部 new 对象或者实例，通过构造函数，或者方法传入的都属于 依赖注入（DI） 。</p>
+</blockquote>
+
+<p><a href="https://learnku.com/docs/laravel-core-concept/5.5/%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5,%E6%8E%A7%E5%88%B6%E7%BF%BB%E8%BD%AC,%E5%8F%8D%E5%B0%84/3017">更多</a></p>
+
+<h3 id="服务容器">服务容器</h3>
+
+<p>TODO</p>
+
+<h3 id="laravel-permission">Laravel-Permission</h3>
+
+<h4 id="给角色同步权限">给角色同步权限</h4>
+
+<p>前端用 Json 传入需要同步的全部 Id，通过 whereIn() 过滤掉 Id 不存在的权限</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">public</span> <span class="k">function</span> <span class="n">syncPermissions</span><span class="p">(</span><span class="kt">Role</span> <span class="nv">$role</span><span class="p">,</span> <span class="kt">Request</span> <span class="nv">$request</span><span class="p">)</span><span class="c1">// TODO 表单验证</span>
+<span class="p">{</span>
+    <span class="nv">$permissionIds</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$request</span><span class="o">-&gt;</span><span class="n">permissionIds</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nv">$permissions</span> <span class="o">=</span> <span class="nc">Permission</span><span class="o">::</span><span class="nf">whereIn</span><span class="p">(</span><span class="s1">'id'</span><span class="p">,</span> <span class="nv">$permissionIds</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">();</span>
+        <span class="c1">// 将多个权限同步到一个角色</span>
+        <span class="nv">$role</span><span class="o">-&gt;</span><span class="nf">syncPermissions</span><span class="p">(</span><span class="nv">$permissions</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="err">\</span><span class="nc">Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="err">\</span><span class="nc">Log</span><span class="o">::</span><span class="nf">channel</span><span class="p">(</span><span class="s1">'errors'</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">notice</span><span class="p">(</span><span class="s1">'[角色权限]给角色('</span><span class="mf">.</span><span class="nv">$role</span><span class="o">-&gt;</span><span class="n">name</span><span class="mf">.</span><span class="s1">')添加权限('</span><span class="mf">.</span><span class="nv">$request</span><span class="o">-&gt;</span><span class="n">permissionIds</span><span class="mf">.</span><span class="s1">')时出错，错误提示：'</span><span class="mf">.</span><span class="nv">$e</span><span class="o">-&gt;</span><span class="nf">getMessage</span><span class="p">());</span>
+        <span class="k">return</span> <span class="nf">response</span><span class="p">([</span>
+            <span class="s1">'code'</span> <span class="o">=&gt;</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s1">'messages'</span> <span class="o">=&gt;</span> <span class="s1">'添加失败'</span><span class="p">,</span>
+            <span class="s1">'data'</span> <span class="o">=&gt;</span> <span class="p">[]</span>
+        <span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nf">response</span><span class="p">([</span>
+        <span class="s1">'code'</span> <span class="o">=&gt;</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">'messages'</span> <span class="o">=&gt;</span> <span class="s1">'角色添加权限成功'</span><span class="p">,</span>
+        <span class="s1">'data'</span> <span class="o">=&gt;</span> <span class="p">[]</span>
+    <span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="爬虫相关">爬虫相关</h3>
+
+<h4 id="http2">HTTP/2</h4>
+
+<h5 id="特征">特征</h5>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">:authority: pc.api.longyiyy.com 
+:method: GET
+:path: /api/goods/list?page=1&amp;category_id=&amp;sort=&amp;order=&amp;is_activity=0&amp;is_youx=&amp;is_xy=&amp;no_image=0
+:scheme: https
+accept: application/json, text/plain, */*
+</span></code></pre></div></div>
+
+<p>HTTP/2 最明显的特征就是从浏览器 Header 头里面可以看到 <code class="language-plaintext highlighter-rouge">:</code>开头的伪 Header 头，用 PHP Guzzle 请求的时候，不需要在 Header 头里面加入伪 Header 头，只需要在请求选项中，设定使用 HTTP/2 协议。</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$response</span> <span class="o">=</span> <span class="nc">Http</span><span class="o">::</span><span class="nf">withHeaders</span><span class="p">([</span>
+			<span class="s1">'accept'</span> <span class="o">=&gt;</span> <span class="s1">'application/json, text/plain, */*'</span><span class="p">,</span>
+            <span class="s1">'accept-encoding'</span> <span class="o">=&gt;</span> <span class="s1">'gzip, deflate, br'</span><span class="p">,</span>
+            <span class="s1">'accept-language'</span> <span class="o">=&gt;</span> <span class="s1">'zh-CN,zh;q=0.9'</span><span class="p">,</span>
+            <span class="s1">'cookie'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'origin'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-ch-ua'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-ch-ua-mobile'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-ch-ua-platform'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-fetch-dest'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-fetch-mode'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'sec-fetch-site'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span><span class="p">,</span>
+            <span class="s1">'user-agent'</span> <span class="o">=&gt;</span> <span class="s1">'...'</span>
+		<span class="p">])</span><span class="o">-&gt;</span><span class="nf">withOptions</span><span class="p">([</span>
+            <span class="s1">'version'</span> <span class="o">=&gt;</span> <span class="mf">2.0</span><span class="p">,</span>
+		<span class="p">])</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="p">[</span><span class="mf">...</span><span class="p">])</span>
+</code></pre></div></div>
+
+<h3 id="excel">Excel</h3>
+
+<h4 id="导出-excel">导出 Excel</h4>
+
+<h5 id="laravel-excel"><a href="https://docs.laravel-excel.com/3.1/getting-started/">Laravel Excel</a></h5>
+
+<p>安装扩展包</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>composer require maatwebsite/excel
+</code></pre></div></div>
+
+<p>创建输出类</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>php artisan make:export ExampleExport <span class="nt">--model</span><span class="o">=</span>Example
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">app/Exports/ExampleExport.php</code></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kn">namespace</span> <span class="nn">App\Exports</span><span class="p">;</span>
+
+<span class="kn">use</span> <span class="nc">App\Models\Example</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Maatwebsite\Excel\Concerns\FromCollection</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Maatwebsite\Excel\Concerns\WithColumnWidths</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Maatwebsite\Excel\Concerns\WithHeadings</span><span class="p">;</span>
+<span class="kn">use</span> <span class="nc">Maatwebsite\Excel\Concerns\WithMapping</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">ProductsExport</span> <span class="kd">implements</span> <span class="nc">FromCollection</span><span class="p">,</span> <span class="nc">WithColumnWidths</span><span class="p">,</span> <span class="nc">WithHeadings</span><span class="p">,</span> <span class="nc">WithMapping</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">collection</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="mf">...</span>
+        <span class="c1">// 获取数据</span>
+        <span class="mf">...</span>
+        <span class="k">return</span> <span class="nv">$collections</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 指定列的宽度，单位不是像素</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">columnWidths</span><span class="p">():</span> <span class="kt">array</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">'A'</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s1">'B'</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="mf">...</span>
+        <span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 指定每一列对应的数据源</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">map</span><span class="p">(</span><span class="nv">$row</span><span class="p">):</span> <span class="kt">array</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nv">$row</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">''</span><span class="p">,</span>
+            <span class="nv">$row</span><span class="o">-&gt;</span><span class="n">licenseNumber</span><span class="p">,</span>
+            <span class="mf">...</span>
+        <span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 标题</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">headings</span><span class="p">():</span> <span class="kt">array</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">'商品编号'</span><span class="p">,</span>
+            <span class="s1">'商品条码'</span><span class="p">,</span>
+            <span class="mf">...</span>
+        <span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>导出到磁盘</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Excel</span><span class="o">::</span><span class="nf">store</span><span class="p">(</span><span class="k">new</span> <span class="nc">ExampleExport</span><span class="p">(),</span> <span class="s1">'examples_'</span><span class="mf">.</span><span class="nf">now</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">timestamp</span><span class="mf">.</span><span class="s1">'.xlsx'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>控制器中导出下载</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="nc">Excel</span><span class="o">::</span><span class="nf">download</span><span class="p">(</span><span class="k">new</span> <span class="nc">ExampleExport</span><span class="p">,</span> <span class="s1">'examples.xlsx'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><a href="https://docs.laravel-excel.com/3.1/exports/">更多导出详情</a></p>
+
+:ET

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>BBS 开发记录 | 雄猫的自由空间</title>
+  <title>BBS 开发笔记 | 雄猫的自由空间</title>
   <meta name="renderer" content="webkit">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -40,7 +40,7 @@
   </div>
 
   <div class="entry" style="position: relative;">
-    <h1 class="entry-title"><a href="/BBS-note-2020" title="BBS 开发记录">BBS 开发记录</a></h1>
+    <h1 class="entry-title"><a href="/BBS-note-2020" title="BBS 开发笔记">BBS 开发笔记</a></h1>
 
     <p class="entry-date">2020-09-25 
         <span class="lastModified" style="display: none;" data-source="_posts/note/2020-09-25-BBS-note-2020.md">最后更新时间: 
@@ -381,7 +381,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
  <span class="p">{</span>
      <span class="c1">// 生成数据集合</span>
      <span class="nv">$users</span> <span class="o">=</span> <span class="nf">factory</span><span class="p">(</span><span class="nc">User</span><span class="o">::</span><span class="n">class</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">times</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">create</span><span class="p">();</span>
-
+   
      <span class="c1">// 单独处理第一个用户的数据</span>
      <span class="nv">$user</span> <span class="o">=</span> <span class="nc">User</span><span class="o">::</span><span class="nf">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
      <span class="nv">$user</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">=</span> <span class="s1">'tomcat'</span><span class="p">;</span>
@@ -524,7 +524,7 @@ php artisan vendor:publish <span class="nt">--provider</span><span class="o">=</
   <span class="p">{</span>
       <span class="c1">// 如 slug 字段无内容，即使用翻译器对 title 进行翻译</span>
       <span class="k">if</span> <span class="p">(</span> <span class="o">!</span> <span class="nv">$topic</span><span class="o">-&gt;</span><span class="n">slug</span><span class="p">)</span> <span class="p">{</span>
-
+  
           <span class="c1">// 推送任务到队列</span>
           <span class="nf">dispatch</span><span class="p">(</span><span class="k">new</span> <span class="nc">TranslateSlug</span><span class="p">(</span><span class="nv">$topic</span><span class="p">));</span>
       <span class="p">}</span>
