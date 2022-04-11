@@ -26,13 +26,52 @@
    <title>雄猫的自由空间</title>
    <link href="http://catname.github.io/atom.xml" rel="self" type="application/atom+xml"/>
    <link href="http://catname.github.io" rel="alternate" type="text/html" />
-   <updated>2022-04-12T01:54:38+08:00</updated>
+   <updated>2022-04-12T01:58:37+08:00</updated>
    <id>http://catname.github.io</id>
    <author>
      <name></name>
      <email></email>
    </author>
 
+   
+   <entry>
+     <title>更多信息</title>
+     <link href="/resume-2022"/>
+     <updated>2022-04-11T00:00:00+08:00</updated>
+     <id>/resume-2022</id>
+     <content type="html">&lt;h2 id=&quot;欢迎来到这里&quot;&gt;欢迎来到这里~&lt;/h2&gt;
+
+&lt;p&gt;本人目前主要做 PHP 后端开发。&lt;/p&gt;
+
+&lt;p&gt;从大学开始接触 PHP，最初是在学习 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Web 渗透&lt;/code&gt; 时接触了 PHP，觉得有意思，于是毕业后一直从事 PHP 开发，现在主要在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LNMP&lt;/code&gt; 环境下，用 Laravel 框架进行前后端分离的应用开发，有开发微信小程序后端，对接微信登录，支付，推送消息，开发钉钉登录、钉钉应用程序、钉钉机器人等经验。&lt;/p&gt;
+
+&lt;h3 id=&quot;最近工作&quot;&gt;最近工作&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用 Laravel 开发爬虫，从不同渠道获取约 4万 条商品数据，并完成数据清洗，筛选，排序，导出 Excel 等工作，中间解决了诸如人机识别，链接超时，数据一致性，内存溢出等问题。完成后定时任务无故障一直稳定运行。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;为工单系统开发 SDK Composer 包，认证模式使用 OAuth 2.0 凭证模式（Client Credentials）+ 签名。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;代码遵循 PSR-12 规范。API 遵循 RESTful 设计。用 Git 进行版本管理。&lt;/p&gt;
+
+&lt;h2 id=&quot;项目记录&quot;&gt;项目记录&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://catname.github.io/laravel-notes&quot;&gt;Laravel 开发踩坑日常记录&lt;/a&gt; 👈 点此查看&lt;/p&gt;
+
+&lt;h2 id=&quot;联系方式&quot;&gt;联系方式&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Email：tomcath@foxmail.com&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;致谢&quot;&gt;致谢&lt;/h2&gt;
+
+&lt;p&gt;感谢您花时间阅读我的简历，期待能有机会和您共事。&lt;/p&gt;
+</content>
+   </entry>
    
    <entry>
      <title>Laravel 开发踩坑日常记录</title>
@@ -880,45 +919,6 @@ accept: application/json, text/plain, */*
 
 &lt;p&gt;&lt;a href=&quot;https://docs.laravel-excel.com/3.1/exports/&quot;&gt;更多导出详情&lt;/a&gt;&lt;/p&gt;
 
-</content>
-   </entry>
-   
-   <entry>
-     <title>更多信息</title>
-     <link href="/resume-2022"/>
-     <updated>2021-04-11T00:00:00+08:00</updated>
-     <id>/resume-2022</id>
-     <content type="html">&lt;h2 id=&quot;欢迎来到这里&quot;&gt;欢迎来到这里~&lt;/h2&gt;
-
-&lt;p&gt;本人目前主要做 PHP 后端开发。&lt;/p&gt;
-
-&lt;p&gt;从大学开始接触 PHP，最初是在学习 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Web 渗透&lt;/code&gt; 时接触了 PHP，觉得有意思，于是毕业后一直从事 PHP 开发，现在主要在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LNMP&lt;/code&gt; 环境下，用 Laravel 框架进行前后端分离的应用开发，有开发微信小程序后端，对接微信登录，支付，推送消息，开发钉钉登录、钉钉应用程序、钉钉机器人等经验。&lt;/p&gt;
-
-&lt;h3 id=&quot;最近工作&quot;&gt;最近工作&lt;/h3&gt;
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;使用 Laravel 开发爬虫，从不同渠道获取约 4万 条商品数据，并完成数据清洗，筛选，排序，导出 Excel 等工作，中间解决了诸如人机识别，链接超时，数据一致性，内存溢出等问题。完成后定时任务无故障一直稳定运行。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;为工单系统开发 SDK Composer 包，认证模式使用 OAuth 2.0 凭证模式（Client Credentials）+ 签名。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;代码遵循 PSR-12 规范。API 遵循 RESTful 设计。用 Git 进行版本管理。&lt;/p&gt;
-
-&lt;h2 id=&quot;项目记录&quot;&gt;项目记录&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://catname.github.io/laravel-notes&quot;&gt;Laravel 开发踩坑日常记录&lt;/a&gt; 👈 点此查看&lt;/p&gt;
-
-&lt;h2 id=&quot;联系方式&quot;&gt;联系方式&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Email：tomcath@foxmail.com&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;致谢&quot;&gt;致谢&lt;/h2&gt;
-
-&lt;p&gt;感谢您花时间阅读我的简历，期待能有机会和您共事。&lt;/p&gt;
 </content>
    </entry>
    
