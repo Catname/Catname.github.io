@@ -16,7 +16,7 @@
 
 <p>代码遵循 PSR-12 规范。API 遵循 RESTful 设计。用 Git 进行版本管理。</p>
 
-<h2 id="项目记录">项目记录</h2>
+<h2 id="踩坑记录">踩坑记录</h2>
 
 <p><a href="https://vastzod.xyz/laravel-notes">Laravel 开发踩坑日常记录</a> 👈 点此查看</p>
 
