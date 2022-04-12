@@ -18,7 +18,7 @@
 
 ## 项目记录  
 
-[Laravel 开发踩坑日常记录](https://catname.github.io/laravel-notes) 👈 点此查看  
+[Laravel 开发踩坑日常记录](https://vastzod.xyz/laravel-notes) 👈 点此查看  
 
 
 

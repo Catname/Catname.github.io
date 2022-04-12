@@ -7,10 +7,10 @@ permalink: /:title
 encoding: UTF-8
 plugins: [jekyll-paginate]
 
-title: 雄猫的自由空间
-url: http://catname.github.io
+title: 雄猫的踩坑日记
+url: http://vastzod.xyz
 feed: /atom.xml
-author_info: <a href="http://catname.github.io/">雄猫</a>
+author_info: <a href="http://vastzod.xyz/">雄猫</a>
 
 myblog:
   gavatar: images/1.jpg
