@@ -26,7 +26,7 @@
    <title>雄猫的踩坑日记</title>
    <link href="http://vastzod.xyz/atom.xml" rel="self" type="application/atom+xml"/>
    <link href="http://vastzod.xyz" rel="alternate" type="text/html" />
-   <updated>2022-04-12T12:51:57+08:00</updated>
+   <updated>2022-04-16T23:34:39+08:00</updated>
    <id>http://vastzod.xyz</id>
    <author>
      <name></name>
@@ -45,7 +45,10 @@
 
 &lt;p&gt;从大学开始接触 PHP，最初是在学习 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Web 渗透&lt;/code&gt; 时接触了 PHP，觉得有意思，于是毕业后一直从事 PHP 开发，现在主要在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LNMP&lt;/code&gt; 环境下，用 Laravel 框架进行前后端分离的应用开发。&lt;/p&gt;
 
+&lt;p&gt;代码遵循 PSR-12 规范。API 遵循 RESTful 设计。用 Git 进行版本管理。&lt;/p&gt;
+
 &lt;h3 id=&quot;最近工作&quot;&gt;最近工作&lt;/h3&gt;
+
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;使用 Laravel 开发爬虫，从不同渠道获取约 4万 条商品数据，并完成数据清洗，筛选，排序，导出 Excel 等工作，中间解决了诸如人机识别，链接超时，数据一致性，内存溢出等问题。完成后定时任务无故障一直稳定运行。&lt;/p&gt;
@@ -55,7 +58,14 @@
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;代码遵循 PSR-12 规范。API 遵循 RESTful 设计。用 Git 进行版本管理。&lt;/p&gt;
+&lt;h3 id=&quot;在校荣誉奖项&quot;&gt;在校荣誉奖项&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;国家励志奖学金（国家级）&lt;/li&gt;
+  &lt;li&gt;东软·亿达企业奖学金&lt;/li&gt;
+  &lt;li&gt;三好学生（校级）两次&lt;/li&gt;
+  &lt;li&gt;优秀大学毕业生（校级）&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&quot;踩坑记录&quot;&gt;踩坑记录&lt;/h2&gt;
 
