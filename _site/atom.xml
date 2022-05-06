@@ -26,7 +26,7 @@
    <title>雄猫的踩坑日记</title>
    <link href="http://vastzod.xyz/atom.xml" rel="self" type="application/atom+xml"/>
    <link href="http://vastzod.xyz" rel="alternate" type="text/html" />
-   <updated>2022-04-16T23:34:39+08:00</updated>
+   <updated>2022-05-06T11:17:01+08:00</updated>
    <id>http://vastzod.xyz</id>
    <author>
      <name></name>
@@ -50,6 +50,9 @@
 &lt;h3 id=&quot;最近工作&quot;&gt;最近工作&lt;/h3&gt;
 
 &lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;折腾 Laravel TDD 测试驱动开发&lt;/p&gt;
+  &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;使用 Laravel 开发爬虫，从不同渠道获取约 4万 条商品数据，并完成数据清洗，筛选，排序，导出 Excel 等工作，中间解决了诸如人机识别，链接超时，数据一致性，内存溢出等问题。完成后定时任务无故障一直稳定运行。&lt;/p&gt;
   &lt;/li&gt;
